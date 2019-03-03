@@ -16,11 +16,12 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
 import br.ufg.emc.termografia.util.Converter;
 
-public class FLIRProxy implements LifecycleObserver, Device.Delegate, Device.StreamDelegate, Device.PowerUpdateDelegate {
-    private static final String TAG = FLIRProxy.class.getSimpleName();
+public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.StreamDelegate, Device.PowerUpdateDelegate {
+    private static final String TAG = FlirProxy.class.getSimpleName();
 
     private AppCompatActivity activityContext;
     private Device device;
+    private boolean changeAutomaticTuningRequested = false;
 
     private MutableLiveData<Boolean> deviceState = new MutableLiveData<>();
     private MutableLiveData<Device.BatteryChargingState> batteryChargingState = new MutableLiveData<>();
@@ -31,7 +32,7 @@ public class FLIRProxy implements LifecycleObserver, Device.Delegate, Device.Str
     private MutableLiveData<Boolean> automaticTuning = new MutableLiveData<>();
     private MutableLiveData<Frame> frame = new MutableLiveData<>();
 
-    public FLIRProxy(AppCompatActivity activity)  {
+    public FlirProxy(AppCompatActivity activity)  {
         activityContext = activity;
         activityContext.getLifecycle().addObserver(this);
 
@@ -123,10 +124,11 @@ public class FLIRProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @Override
     public void onAutomaticTuningChanged(boolean isEnabled) {
-        automaticTuning.setValue(isEnabled);
         SharedPreferences.Editor editor = Preferences.getSharedPreferences(activityContext).edit();
         editor.putBoolean(Preferences.automaticTuning.key, isEnabled);
         editor.apply();
+        changeAutomaticTuningRequested = false;
+        automaticTuning.setValue(isEnabled);
     }
 
     @Override
@@ -135,8 +137,15 @@ public class FLIRProxy implements LifecycleObserver, Device.Delegate, Device.Str
     }
 
     public void setAutomaticTuning(boolean enabled) {
-        if (device != null)
+        if (device != null && !changeAutomaticTuningRequested) {
+            changeAutomaticTuningRequested = true;
             device.setAutomaticTuning(enabled);
+        }
+    }
+
+    public void toggleAutomaticTuning() {
+        boolean val = (automaticTuning.getValue() != null && automaticTuning.getValue());
+        setAutomaticTuning(!val);
     }
 
     public void performTuning() {
