@@ -90,6 +90,7 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
         Log.i(TAG, "Device connected");
 
         device = connectedDevice;
+        setAutomaticTuning(automaticTuning.getValue() == null || automaticTuning.getValue());
         deviceState.setValue(true);
 
         float lower = (float)Converter.kelvintoCelsius(device.getLowerAccuracyBound());
@@ -104,6 +105,7 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
     @Override
     public void onDeviceDisconnected(Device disconnectedDevice) {
         device = null;
+        changeAutomaticTuningRequested = false;
         resetDeviceData();
     }
 

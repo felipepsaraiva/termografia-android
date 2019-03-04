@@ -8,4 +8,6 @@
     <color name="colorPrimary">@color/gray_700</color>
     <color name="colorPrimaryDark">@color/gray_900</color>
     <color name="colorAccent">@color/blue_gray_600</color>
+
+    <color name="light_bg">@color/gray_400</color>
 </resources>

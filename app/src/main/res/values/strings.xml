@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Termografia</string>
+    <string name="all_devicesettings">FLIR One</string>
+
+    <!--PreviewActivity-->
+    <string name="preview_title">Pré-visualização</string>
+    <string name="preview_connectdevice">Conecte sua\nFLIR One</string>
+    <string name="preview_capture">Capturar</string>
+    <string name="preview_analyze">Analisar</string>
+
+    <!--AnalysisActivity-->
+    <string name="analysis_label">Análise Termográfica</string>
 </resources>
