@@ -2,23 +2,30 @@ package br.ufg.emc.termografia.ui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
+import br.ufg.emc.termografia.BuildConfig;
 import br.ufg.emc.termografia.FlirProxy;
 import br.ufg.emc.termografia.R;
 import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.flir.flironesdk.Frame;
 import com.flir.flironesdk.FrameProcessor;
 import com.flir.flironesdk.RenderedImage;
+import com.flir.flironesdk.SimulatedDevice;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 public class PreviewActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = PreviewActivity.class.getSimpleName();
@@ -30,12 +37,22 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
     private GLSurfaceView glSurfaceView;
     private BottomNavigationView bottomNavigationView;
 
+    // Workaround on the issue of gray scale image on device connection
+    private CountDownTimer paletteCountDown = new CountDownTimer(500, 500) {
+        @Override public void onTick(long l) { }
+
+        @Override
+        public void onFinish() {
+            processor.setImagePalette(frameViewModel.getPalette().getValue());
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
 
-        processor = new FrameProcessor(this, null, null, true);
+        processor = new FrameProcessor(this, (RenderedImage image) -> {}, null, true);
 
         glSurfaceView = findViewById(R.id.glsurfaceview_preview_previewscreen);
         glSurfaceView.setPreserveEGLContextOnPause(true);
@@ -57,19 +74,45 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
 
         flir = new FlirProxy(this);
         flir.getDeviceState().observe(this, (Boolean connected) -> {
-            Log.d(TAG, "Device state: " + connected.toString());
             findViewById(R.id.textview_preview_connectdevice).setVisibility(connected ? View.GONE : View.VISIBLE);
             glSurfaceView.setVisibility(connected ? View.VISIBLE : View.GONE);
 
             Menu menu = bottomNavigationView.getMenu();
             menu.findItem(R.id.menu_preview_devicesettings).setEnabled(connected);
             menu.findItem(R.id.menu_preview_capture).setEnabled(connected);
+
+            if (connected) {
+                processor.setImagePalette(RenderedImage.Palette.Gray);
+                paletteCountDown.start();
+            }
         });
         flir.getFrame().observe(this, (Frame frame) -> {
             if (frame == null) return;
             processor.processFrame(frame, FrameProcessor.QueuingOption.CLEAR_QUEUED);
             glSurfaceView.requestRender();
         });
+
+
+        if (BuildConfig.DEBUG) debugSetup();
+    }
+
+    // Enables SimulatedDevice on debug builds
+    private void debugSetup() {
+        glSurfaceView.setOnClickListener((View v) -> flir.closeSimulatedDevice());
+
+        TextView textView = findViewById(R.id.textview_preview_connectdevice);
+        textView.setOnClickListener((View v) -> new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                if (flir.getDeviceState().getValue() != null && flir.getDeviceState().getValue()) return;
+                try {
+                    new SimulatedDevice(flir, getBaseContext(), getResources().openRawResource(R.raw.sampleframes), 100);
+                } catch (Exception e) {
+                    Log.d(TAG, "Could not open simulated device!");
+                }
+            }
+        }.start());
     }
 
     @Override

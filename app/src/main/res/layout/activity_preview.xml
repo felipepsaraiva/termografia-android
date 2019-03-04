@@ -33,7 +33,6 @@
             android:id="@+id/glsurfaceview_preview_previewscreen"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@color/black"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:visibility="gone"

@@ -37,11 +37,11 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
         activityContext.getLifecycle().addObserver(this);
 
         resetDeviceData();
-        frame.setValue(null);
+        frame.postValue(null);
 
         SharedPreferences preferences = Preferences.getSharedPreferences(activityContext);
         Boolean auto = preferences.getBoolean(Preferences.automaticTuning.key, Preferences.automaticTuning.defaultValue);
-        automaticTuning.setValue(auto);
+        automaticTuning.postValue(auto);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -71,18 +71,17 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
-        if (device instanceof SimulatedDevice) device.close();
         Device.stopDiscovery();
         device = null;
     }
 
     private void resetDeviceData() {
-        deviceState.setValue(false);
-        batteryChargingState.setValue(null);
-        batteryPercentage.setValue(null);
-        lowerAccuracyBound.setValue(null);
-        upperAccuracyBound.setValue(null);
-        tuningState.setValue(Device.TuningState.Unknown);
+        deviceState.postValue(false);
+        batteryChargingState.postValue(null);
+        batteryPercentage.postValue(null);
+        lowerAccuracyBound.postValue(null);
+        upperAccuracyBound.postValue(null);
+        tuningState.postValue(Device.TuningState.Unknown);
     }
 
     @Override
@@ -91,12 +90,12 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
         device = connectedDevice;
         setAutomaticTuning(automaticTuning.getValue() == null || automaticTuning.getValue());
-        deviceState.setValue(true);
+        deviceState.postValue(true);
 
         float lower = (float)Converter.kelvintoCelsius(device.getLowerAccuracyBound());
         float upper = (float)Converter.kelvintoCelsius(device.getUpperAccuracyBound());
-        lowerAccuracyBound.setValue(lower);
-        upperAccuracyBound.setValue(upper);
+        lowerAccuracyBound.postValue(lower);
+        upperAccuracyBound.postValue(upper);
 
         device.setPowerUpdateDelegate(this);
         device.startFrameStream(this);
@@ -104,6 +103,7 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @Override
     public void onDeviceDisconnected(Device disconnectedDevice) {
+        Log.i(TAG, "Device disconnected");
         device = null;
         changeAutomaticTuningRequested = false;
         resetDeviceData();
@@ -111,17 +111,17 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @Override
     public void onBatteryChargingStateReceived(Device.BatteryChargingState state) {
-        batteryChargingState.setValue(state);
+        batteryChargingState.postValue(state);
     }
 
     @Override
     public void onBatteryPercentageReceived(byte percentage) {
-        batteryPercentage.setValue(percentage);
+        batteryPercentage.postValue(percentage);
     }
 
     @Override
     public void onTuningStateChanged(Device.TuningState state) {
-        tuningState.setValue(state);
+        tuningState.postValue(state);
     }
 
     @Override
@@ -130,12 +130,12 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
         editor.putBoolean(Preferences.automaticTuning.key, isEnabled);
         editor.apply();
         changeAutomaticTuningRequested = false;
-        automaticTuning.setValue(isEnabled);
+        automaticTuning.postValue(isEnabled);
     }
 
     @Override
     public void onFrameReceived(Frame frame) {
-        this.frame.setValue(frame);
+        this.frame.postValue(frame);
     }
 
     public void setAutomaticTuning(boolean enabled) {
@@ -153,6 +153,11 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
     public void performTuning() {
         if (device != null)
             device.performTuning();
+    }
+
+    public void closeSimulatedDevice() {
+        if (device instanceof SimulatedDevice)
+            device.close();
     }
 
     public LiveData<Boolean> getDeviceState() {
