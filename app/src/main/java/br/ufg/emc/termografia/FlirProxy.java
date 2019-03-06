@@ -9,12 +9,14 @@ import com.flir.flironesdk.Frame;
 import com.flir.flironesdk.SimulatedDevice;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
 import br.ufg.emc.termografia.util.Converter;
+import br.ufg.emc.termografia.util.Preferences;
 
 public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.StreamDelegate, Device.PowerUpdateDelegate {
     private static final String TAG = FlirProxy.class.getSimpleName();
@@ -39,9 +41,10 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
         resetDeviceData();
         frame.postValue(null);
 
-        SharedPreferences preferences = Preferences.getSharedPreferences(activityContext);
-        Boolean auto = preferences.getBoolean(Preferences.automaticTuning.key, Preferences.automaticTuning.defaultValue);
-        automaticTuning.postValue(auto);
+        SharedPreferences preferences = Preferences.getPreferences(activity);
+        String key = activity.getString(R.string.flirsettings_automatictuning_key);
+        boolean defaultValue = activity.getResources().getBoolean(R.bool.flirsettings_automatictuning_default);
+        automaticTuning.setValue(preferences.getBoolean(key, defaultValue));
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -126,8 +129,9 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @Override
     public void onAutomaticTuningChanged(boolean isEnabled) {
-        SharedPreferences.Editor editor = Preferences.getSharedPreferences(activityContext).edit();
-        editor.putBoolean(Preferences.automaticTuning.key, isEnabled);
+        String key = activityContext.getString(R.string.flirsettings_automatictuning_key);
+        SharedPreferences.Editor editor = Preferences.getPreferences(activityContext).edit();
+        editor.putBoolean(key, isEnabled);
         editor.apply();
         changeAutomaticTuningRequested = false;
         automaticTuning.postValue(isEnabled);
@@ -139,15 +143,12 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
     }
 
     public void setAutomaticTuning(boolean enabled) {
-        if (device != null && !changeAutomaticTuningRequested) {
-            changeAutomaticTuningRequested = true;
-            device.setAutomaticTuning(enabled);
-        }
-    }
+        if (device == null) return;
+        if (changeAutomaticTuningRequested) return;
+        if (automaticTuning.getValue() != null && automaticTuning.getValue() == enabled) return;
 
-    public void toggleAutomaticTuning() {
-        boolean val = (automaticTuning.getValue() != null && automaticTuning.getValue());
-        setAutomaticTuning(!val);
+        changeAutomaticTuningRequested = true;
+        device.setAutomaticTuning(enabled);
     }
 
     public void performTuning() {

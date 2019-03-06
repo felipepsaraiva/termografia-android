@@ -6,64 +6,59 @@ import android.content.SharedPreferences;
 import com.flir.flironesdk.RenderedImage;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import br.ufg.emc.termografia.Preferences;
+import br.ufg.emc.termografia.R;
+import br.ufg.emc.termografia.util.Preferences;
 
 public class ThermalFrameViewModel extends AndroidViewModel {
-    private SharedPreferences preferences;
-
-    private MutableLiveData<RenderedImage.ImageType> imageType = new MutableLiveData<>();
-    private MutableLiveData<Float> msxDistance = new MutableLiveData<>();
-    private MutableLiveData<RenderedImage.Palette> palette = new MutableLiveData<>();
-    private MutableLiveData<Float> emissivity = new MutableLiveData<>();
+    private MutableLiveData<String> imageType = new MutableLiveData<>();
+    private MutableLiveData<Integer> msxDistance = new MutableLiveData<>();
+    private MutableLiveData<String> palette = new MutableLiveData<>();
+    private MutableLiveData<String> emissivity = new MutableLiveData<>();
     private MutableLiveData<String> framePath = new MutableLiveData<>();
 
-    public ThermalFrameViewModel(@NonNull Application application) {
-        super(application);
-        this.preferences = Preferences.getSharedPreferences(application);
+    public ThermalFrameViewModel(@NonNull Application app) {
+        super(app);
+        SharedPreferences preferences = Preferences.getPreferences(app);
 
-        RenderedImage.ImageType imageType = RenderedImage.ImageType.valueOf(
-                preferences.getString(Preferences.imageType.key, Preferences.imageType.defaultValue));
-        RenderedImage.Palette palette = RenderedImage.Palette.valueOf(
-                preferences.getString(Preferences.colorPalette.key, Preferences.colorPalette.defaultValue));
+        String key, defaultString;
+        int defaultInt;
 
-        float msxDistance = preferences.getFloat(Preferences.msxDistance.key, Preferences.msxDistance.defaultValue);
-        float emissivity = preferences.getFloat(Preferences.emissivity.key, Preferences.emissivity.defaultValue);
+        key = app.getString(R.string.flirsettings_imagetype_key);
+        defaultString = app.getString(R.string.flirsettings_imagetype_default);
+        this.imageType.setValue(preferences.getString(key, defaultString));
 
-        this.imageType.setValue(imageType);
-        this.msxDistance.setValue(msxDistance);
-        this.palette.setValue(palette);
-        this.emissivity.setValue(emissivity);
+        key = app.getString(R.string.flirsettings_msxdistance_key);
+        defaultInt = app.getResources().getInteger(R.integer.flirsettings_msxdistance_default);
+        this.msxDistance.setValue(preferences.getInt(key, defaultInt));
+
+        key = app.getString(R.string.flirsettings_palette_key);
+        defaultString = app.getString(R.string.flirsettings_palette_default);
+        this.palette.setValue(preferences.getString(key, defaultString));
+
+        key = app.getString(R.string.flirsettings_emissivity_key);
+        defaultString = app.getString(R.string.flirsettings_emissivity_default);
+        this.emissivity.setValue(preferences.getString(key, defaultString));
+
         this.framePath.setValue(null);
     }
 
-    public void setImageType(RenderedImage.ImageType imageType) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(Preferences.imageType.key, imageType.toString());
-        editor.apply();
+    public void setImageType(String imageType) {
         this.imageType.setValue(imageType);
     }
 
-    public void setMsxDistance(float msxDistance) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putFloat(Preferences.msxDistance.key, msxDistance);
-        editor.apply();
+    public void setMsxDistance(int msxDistance) {
         this.msxDistance.setValue(msxDistance);
     }
 
-    public void setPalette(RenderedImage.Palette palette) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(Preferences.colorPalette.key, palette.toString());
-        editor.apply();
+    public void setPalette(String palette) {
         this.palette.setValue(palette);
     }
 
-    public void setEmissivity(float emissivity) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putFloat(Preferences.emissivity.key, emissivity);
-        editor.apply();
+    public void setEmissivity(String emissivity) {
         this.emissivity.setValue(emissivity);
     }
 
@@ -71,19 +66,19 @@ public class ThermalFrameViewModel extends AndroidViewModel {
         this.framePath.setValue(path);
     }
 
-    public LiveData<RenderedImage.ImageType> getImageType() {
+    public LiveData<String> getImageType() {
         return imageType;
     }
 
-    public LiveData<Float> getMsxDistance() {
+    public LiveData<Integer> getMsxDistance() {
         return msxDistance;
     }
 
-    public LiveData<RenderedImage.Palette> getPalette() {
+    public LiveData<String> getPalette() {
         return palette;
     }
 
-    public LiveData<Float> getEmissivity() {
+    public LiveData<String> getEmissivity() {
         return emissivity;
     }
 
