@@ -2,7 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_preview_devicesettings"
-        android:enabled="false"
         android:icon="@drawable/ic_all_devicesettings"
         android:title="@string/all_devicesettings"
         android:tooltipText="@string/all_devicesettings" />

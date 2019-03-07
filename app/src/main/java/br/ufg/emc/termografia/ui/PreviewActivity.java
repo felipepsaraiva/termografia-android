@@ -6,13 +6,13 @@ import androidx.lifecycle.ViewModelProviders;
 import br.ufg.emc.termografia.BuildConfig;
 import br.ufg.emc.termografia.FlirProxy;
 import br.ufg.emc.termografia.R;
+import br.ufg.emc.termografia.util.Converter;
 import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -21,6 +21,8 @@ import com.flir.flironesdk.FrameProcessor;
 import com.flir.flironesdk.RenderedImage;
 import com.flir.flironesdk.SimulatedDevice;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.Objects;
 
 public class PreviewActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     private static final String LOG_TAG = PreviewActivity.class.getSimpleName();
@@ -73,9 +75,9 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
             RenderedImage.ImageType imageType = RenderedImage.ImageType.valueOf(imageTypeName);
             processor.setGLOutputMode(imageType);
         });
-        frameViewModel.getMsxDistance().observe(this, (Integer distance) -> {
-            float d = (distance == null ? 0f : distance);
-            processor.setMSXDistance(d/100f);
+        frameViewModel.getMsxDistance().observe(this, (Integer percentage) -> {
+            float distance = Converter.msxDistance(this, Objects.requireNonNull(percentage));
+            processor.setMSXDistance(distance);
         });
         frameViewModel.getPalette().observe(this, (String paletteName) -> {
             RenderedImage.Palette palette = RenderedImage.Palette.valueOf(paletteName);
@@ -104,14 +106,13 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
                         .setEnabled(path != null && !path.isEmpty())
         );
 
-        flir.getDeviceState().observe(this, (Boolean connected) -> {
+        flir.getDeviceState().observe(this, (FlirProxy.DeviceState state) -> {
+            boolean connected = (state != FlirProxy.DeviceState.Disconnected);
             findViewById(R.id.textview_preview_connectdevice).setVisibility(connected ? View.GONE : View.VISIBLE);
             glSurfaceView.setVisibility(connected ? View.VISIBLE : View.GONE);
 
-            Menu menu = bottomNavigationView.getMenu();
-            // TODO: Voltar para as condições normais
-            menu.findItem(R.id.menu_preview_devicesettings).setEnabled(true);
-            menu.findItem(R.id.menu_preview_capture).setEnabled(connected);
+            bottomNavigationView.getMenu()
+                    .findItem(R.id.menu_preview_capture).setEnabled(connected);
 
             if (connected) {
                 processor.setImagePalette(RenderedImage.Palette.Gray);
@@ -129,8 +130,8 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.menu_preview_devicesettings:
-                FlirDeviceDialogFragment.newInstance(null)
-                        .showNow(getSupportFragmentManager(), FlirDeviceDialogFragment.FRAGMENT_TAG);
+                FlirDeviceDialogFragment.newInstance(flir)
+                        .show(getSupportFragmentManager(), FlirDeviceDialogFragment.FRAGMENT_TAG);
                 break;
 
             default:
@@ -147,7 +148,7 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
             @Override
             public void run() {
                 super.run();
-                if (flir.getDeviceState().getValue() != null && flir.getDeviceState().getValue()) return;
+                if (flir.getDeviceState().getValue() != FlirProxy.DeviceState.Disconnected) return;
                 try {
                     new SimulatedDevice(flir, getBaseContext(), getResources().openRawResource(R.raw.sampleframes), 100);
                 } catch (Exception e) {

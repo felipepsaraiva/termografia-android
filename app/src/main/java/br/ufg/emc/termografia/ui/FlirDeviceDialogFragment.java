@@ -7,41 +7,23 @@ import android.view.ViewGroup;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import java.util.Objects;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.appcompat.widget.Toolbar;
 import br.ufg.emc.termografia.FlirProxy;
 import br.ufg.emc.termografia.R;
-import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
-
-// TODO: Configurar FlirProxy e propagar para o FlirSettingsFragment
 
 public class FlirDeviceDialogFragment extends BottomSheetDialogFragment {
     public static final String FRAGMENT_TAG = FlirDeviceDialogFragment.class.getCanonicalName();
 
-    private ThermalFrameViewModel frameViewModel;
     private FlirProxy flir;
 
-    public static FlirDeviceDialogFragment newInstance(FlirProxy proxy) {
+    public FlirDeviceDialogFragment() { /* Required empty public constructor */ }
+
+    public static FlirDeviceDialogFragment newInstance(@Nullable FlirProxy proxy) {
         FlirDeviceDialogFragment instance = new FlirDeviceDialogFragment();
         instance.setFlirProxy(proxy);
         return instance;
-    }
-
-    public FlirDeviceDialogFragment() {}
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setupViewModels(Objects.requireNonNull(getActivity()));
-    }
-
-    private void setupViewModels(FragmentActivity activity) {
-        frameViewModel = ViewModelProviders.of(activity).get(ThermalFrameViewModel.class);
-        // Subscribe to events
     }
 
     @Override
@@ -52,10 +34,14 @@ public class FlirDeviceDialogFragment extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Toolbar toolbar = view.findViewById(R.id.toolbar_flirdevice);
+        toolbar.setNavigationIcon(R.drawable.ic_all_dismiss);
+        toolbar.setNavigationOnClickListener((View v) -> dismiss());
+
         getChildFragmentManager().beginTransaction()
-                .replace(R.id.viewgroup_flirdevice_fragmentcontainer, new FlirSettingsFragment())
+                .replace(R.id.viewgroup_flirdevice_fragmentcontainer, FlirSettingsFragment.newInstance(flir))
                 .commit();
-        // Setup views here
     }
 
     private void setFlirProxy(FlirProxy flirProxy) {

@@ -2,50 +2,158 @@ package br.ufg.emc.termografia.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
-import java.util.Objects;
+import com.flir.flironesdk.Device;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SeekBarPreference;
+import br.ufg.emc.termografia.FlirProxy;
 import br.ufg.emc.termografia.R;
+import br.ufg.emc.termografia.util.Converter;
 import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
-public class FlirSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private ThermalFrameViewModel frameViewModel;
+// TODO: Bloquear a preferência msx_distance quando o image_type for diferente de BlendedMSX
 
-    public FlirSettingsFragment() {}
+public class FlirSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private static final String LOG_TAG = FlirSettingsFragment.class.getSimpleName();
+
+    private ThermalFrameViewModel frameViewModel;
+    private FlirProxy flir;
+
+    public FlirSettingsFragment() { /* Required empty public constructor */ }
+
+    public static FlirSettingsFragment newInstance(@Nullable FlirProxy proxy) {
+        FlirSettingsFragment instance = new FlirSettingsFragment();
+        instance.setFlirProxy(proxy);
+        return instance;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        frameViewModel = ViewModelProviders.of(requireActivity()).get(ThermalFrameViewModel.class);
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-        Objects.requireNonNull(getActivity());
-        frameViewModel = ViewModelProviders.of(getActivity()).get(ThermalFrameViewModel.class);
+        setupObservers();
+    }
+
+    private void setupObservers() {
+        if (flir == null) return;
+        flir.getDeviceState().observe(this, (FlirProxy.DeviceState state) -> {
+            String summary = getResources().getStringArray(R.array.flirsettings_devicestate_values)[state.ordinal()];
+            findPreference(getString(R.string.flirsettings_devicestate_key)).setSummary(summary);
+            findPreference(getString(R.string.flisettings_performtuning_key)).setVisible(state != FlirProxy.DeviceState.Disconnected);
+        });
+        flir.getBatteryChargingState().observe(this, (Device.BatteryChargingState state) -> {
+            Preference preference = findPreference(getString(R.string.flirsettings_batterystate_key));
+            if (state != null) {
+                String summary = getResources().getStringArray(R.array.flirsettings_batterystate_values)[state.ordinal()];
+                preference.setSummary(summary);
+                preference.setVisible(true);
+            } else {
+                preference.setVisible(false);
+            }
+        });
+        flir.getBatteryPercentage().observe(this, (Byte percentage) -> {
+            Preference preference = findPreference(getString(R.string.flirsettings_batterypercentage_key));
+            if (percentage != null) {
+                String summary = getResources().getString(R.string.flirsettings_batterypercentage_summary, percentage);
+                preference.setSummary(summary);
+                preference.setVisible(true);
+            } else {
+                preference.setVisible(false);
+            }
+        });
+        flir.getLowerAccuracyBound().observe(this, (Float lowerAccuracy) -> {
+            Preference preference = findPreference(getString(R.string.flirsettings_loweraccuracy_key));
+            if (lowerAccuracy != null) {
+                String summary = getResources().getString(R.string.flirsettings_loweraccuracy_summary, lowerAccuracy);
+                preference.setSummary(summary);
+                preference.setVisible(true);
+            } else {
+                preference.setVisible(false);
+            }
+        });
+        flir.getUpperAccuracyBound().observe(this, (Float upperAccuracy) -> {
+            Preference preference = findPreference(getString(R.string.flirsettings_upperaccuracy_key));
+            if (upperAccuracy != null) {
+                String summary = getResources().getString(R.string.flirsettings_upperaccuracy_summary, upperAccuracy);
+                preference.setSummary(summary);
+                preference.setVisible(true);
+            } else {
+                preference.setVisible(false);
+            }
+        });
+        flir.getTuningState().observe(this, (Device.TuningState state) -> {
+            Preference preference = findPreference(getString(R.string.flirsettings_tuningstate_key));
+            if (state != null) {
+                String summary = getResources().getStringArray(R.array.flirsettings_tuningstate_values)[state.ordinal()];
+                preference.setSummary(summary);
+                preference.setVisible(true);
+            } else {
+                preference.setVisible(false);
+            }
+        });
     }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.flir_device_settings, rootKey);
-        findPreference(getString(R.string.flirsettings_imagetype_key))
-                .setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
-        findPreference(getString(R.string.flirsettings_palette_key))
-                .setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
-        findPreference(getString(R.string.flirsettings_emissivity_key))
-                .setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
+
+        if (flir != null) {
+            findPreference(getString(R.string.flirsettings_category_device_key)).setVisible(true);
+
+            SeekBarPreference msxDistance = findPreference(getString(R.string.flirsettings_msxdistance_key));
+            float initial = Converter.msxDistance(requireContext(), msxDistance.getValue());
+            msxDistance.setSummary(getString(R.string.flirsettings_msxdistance_summary, initial));
+            msxDistance.setOnPreferenceChangeListener((Preference preference, Object value) -> {
+                float distance = Converter.msxDistance(requireContext(), (Integer) value);
+                preference.setSummary(getString(R.string.flirsettings_msxdistance_summary, distance));
+                return true;
+            });
+
+            findPreference(getString(R.string.flirsettings_automatictuning_key))
+                    .setOnPreferenceChangeListener((Preference preference, Object enabled) -> {
+                        if (flir != null) flir.setAutomaticTuning((Boolean) enabled);
+                        return true;
+                    });
+
+            findPreference(getString(R.string.flisettings_performtuning_key))
+                    .setOnPreferenceClickListener((Preference p) -> onTuningRequested());
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    private boolean onTuningRequested() {
+        if (flir != null && flir.performTuning()) {
+            Toast.makeText(requireContext(), R.string.flirdevice_tuning_requested, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
-        // TODO: Adicionar defaultValues
         if (getString(R.string.flirsettings_msxdistance_key).equals(key))
-            frameViewModel.setMsxDistance(preferences.getInt(key, 0));
+            frameViewModel.setMsxDistance(preferences.getInt(key, getResources().getInteger(R.integer.flirsettings_msxdistance_default)));
         else if (getString(R.string.flirsettings_palette_key).equals(key))
-            frameViewModel.setPalette(preferences.getString(key, null));
+            frameViewModel.setPalette(preferences.getString(key, getString(R.string.flirsettings_palette_default)));
         else if (getString(R.string.flirsettings_emissivity_key).equals(key))
-            frameViewModel.setEmissivity(preferences.getString(key, null));
+            frameViewModel.setEmissivity(preferences.getString(key, getString(R.string.flirsettings_emissivity_default)));
         else if (getString(R.string.flirsettings_imagetype_key).equals(key))
-            frameViewModel.setImageType(preferences.getString(key, null));
+            frameViewModel.setImageType(preferences.getString(key, getString(R.string.flirsettings_imagetype_default)));
+    }
+
+    private void setFlirProxy(FlirProxy proxy) {
+        flir = proxy;
     }
 }

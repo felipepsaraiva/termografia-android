@@ -6,9 +6,12 @@
 
     <string name="flirsettings_devicestate_key">device_state</string>
     <string name="flirsettings_devicestate_title">Dispositivo FLIR</string>
-    <string name="flirsettings_devicestate_disconnected">Desconectado</string>
-    <string name="flirsettings_devicestate_usb">USB</string>
-    <string name="flirsettings_devicestate_embedded">Embutido</string>
+    <string-array name="flirsettings_devicestate_values">
+        <item>Desconectado</item>
+        <item>Conectado</item>
+        <item>USB</item>
+        <item>Embutido</item>
+    </string-array>
 
     <string name="flirsettings_batterystate_key">battery_state</string>
     <string name="flirsettings_batterystate_title">Status da bateria</string>
@@ -26,7 +29,7 @@
 
     <string name="flirsettings_batterypercentage_key">battery_percentage</string>
     <string name="flirsettings_batterypercentage_title">Porcentagem da bateria</string>
-    <string name="flirsettings_batterypercentage_summary">%1$d\%</string>
+    <string name="flirsettings_batterypercentage_summary">%1$d%%</string>
 
     <string name="flirsettings_loweraccuracy_key">lower_accuracy</string>
     <string name="flirsettings_loweraccuracy_title">Menor leitura com precisão</string>
@@ -53,7 +56,7 @@
 
     <string name="flisettings_performtuning_key">perform_tuning</string>
     <string name="flisettings_performtuning_title">Solicitar calibração</string>
-    <string name="flisettings_performtuning_summary">Realiza o processo de calibração caso a automatica esteja desabilitada</string>
+    <string name="flisettings_performtuning_summary">Solicita que o dispositivo realize o processo de calibração</string>
 
     <string name="flirsettings_category_image_key">image_category</string>
     <string name="flirsettings_category_image_title">Imagem</string>
@@ -71,9 +74,11 @@
     </string-array>
     
     <string name="flirsettings_msxdistance_key">msx_distance</string>
-    <string name="flirsettings_msxdistance_title">Distância do objeto (centímetros)</string>
-    <string name="flirsettings_msxdistance_summary">%1$d cm</string>
+    <string name="flirsettings_msxdistance_title">Distância do objeto</string>
+    <string name="flirsettings_msxdistance_summary">%1$.1f m</string>
     <integer name="flirsettings_msxdistance_default">0</integer>
+    <integer name="flirsettings_msxdistance_min">0</integer>
+    <integer name="flirsettings_msxdistance_max">500</integer>
 
     <string name="flirsettings_palette_key">color_palette</string>
     <string name="flirsettings_palette_title">Paleta de cores</string>

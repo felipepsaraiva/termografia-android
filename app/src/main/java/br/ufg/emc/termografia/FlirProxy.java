@@ -5,11 +5,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.flir.flironesdk.Device;
+import com.flir.flironesdk.EmbeddedDevice;
+import com.flir.flironesdk.FlirUsbDevice;
 import com.flir.flironesdk.Frame;
 import com.flir.flironesdk.SimulatedDevice;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
@@ -23,15 +24,13 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     private AppCompatActivity activityContext;
     private Device device;
-    private boolean changeAutomaticTuningRequested = false;
 
-    private MutableLiveData<Boolean> deviceState = new MutableLiveData<>();
+    private MutableLiveData<DeviceState> deviceState = new MutableLiveData<>();
     private MutableLiveData<Device.BatteryChargingState> batteryChargingState = new MutableLiveData<>();
     private MutableLiveData<Byte> batteryPercentage = new MutableLiveData<>();
     private MutableLiveData<Float> lowerAccuracyBound = new MutableLiveData<>();
     private MutableLiveData<Float> upperAccuracyBound = new MutableLiveData<>();
     private MutableLiveData<Device.TuningState> tuningState = new MutableLiveData<>();
-    private MutableLiveData<Boolean> automaticTuning = new MutableLiveData<>();
     private MutableLiveData<Frame> frame = new MutableLiveData<>();
 
     public FlirProxy(AppCompatActivity activity)  {
@@ -40,11 +39,6 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
         resetDeviceData();
         frame.postValue(null);
-
-        SharedPreferences preferences = Preferences.getPreferences(activity);
-        String key = activity.getString(R.string.flirsettings_automatictuning_key);
-        boolean defaultValue = activity.getResources().getBoolean(R.bool.flirsettings_automatictuning_default);
-        automaticTuning.setValue(preferences.getBoolean(key, defaultValue));
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -79,12 +73,12 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
     }
 
     private void resetDeviceData() {
-        deviceState.postValue(false);
+        deviceState.postValue(DeviceState.Disconnected);
         batteryChargingState.postValue(null);
         batteryPercentage.postValue(null);
         lowerAccuracyBound.postValue(null);
         upperAccuracyBound.postValue(null);
-        tuningState.postValue(Device.TuningState.Unknown);
+        tuningState.postValue(null);
     }
 
     @Override
@@ -92,11 +86,18 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
         Log.i(TAG, "Device connected");
 
         device = connectedDevice;
-        setAutomaticTuning(automaticTuning.getValue() == null || automaticTuning.getValue());
-        deviceState.postValue(true);
 
-        float lower = (float)Converter.kelvintoCelsius(device.getLowerAccuracyBound());
-        float upper = (float)Converter.kelvintoCelsius(device.getUpperAccuracyBound());
+        SharedPreferences preferences = Preferences.getPreferences(activityContext);
+        String key = activityContext.getString(R.string.flirsettings_automatictuning_key);
+        boolean defaultValue = activityContext.getResources().getBoolean(R.bool.flirsettings_automatictuning_default);
+        setAutomaticTuning(preferences.getBoolean(key, defaultValue));
+
+        if (device instanceof FlirUsbDevice) deviceState.postValue(DeviceState.Usb);
+        else if (device instanceof EmbeddedDevice) deviceState.postValue(DeviceState.Embedded);
+        else deviceState.postValue(DeviceState.Connected);
+
+        float lower = (float)Converter.kelvinToCelsius(device.getLowerAccuracyBound());
+        float upper = (float)Converter.kelvinToCelsius(device.getUpperAccuracyBound());
         lowerAccuracyBound.postValue(lower);
         upperAccuracyBound.postValue(upper);
 
@@ -108,7 +109,6 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
     public void onDeviceDisconnected(Device disconnectedDevice) {
         Log.i(TAG, "Device disconnected");
         device = null;
-        changeAutomaticTuningRequested = false;
         resetDeviceData();
     }
 
@@ -128,13 +128,12 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
     }
 
     @Override
-    public void onAutomaticTuningChanged(boolean isEnabled) {
+    public void onAutomaticTuningChanged(boolean enabled) {
+        Log.d(TAG, "onAutomaticTuningChanged: " + String.valueOf(enabled)); // TODO: Remove debug
         String key = activityContext.getString(R.string.flirsettings_automatictuning_key);
-        SharedPreferences.Editor editor = Preferences.getPreferences(activityContext).edit();
-        editor.putBoolean(key, isEnabled);
-        editor.apply();
-        changeAutomaticTuningRequested = false;
-        automaticTuning.postValue(isEnabled);
+        Preferences.getPreferences(activityContext).edit()
+                .putBoolean(key, enabled)
+                .apply();
     }
 
     @Override
@@ -143,17 +142,14 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
     }
 
     public void setAutomaticTuning(boolean enabled) {
-        if (device == null) return;
-        if (changeAutomaticTuningRequested) return;
-        if (automaticTuning.getValue() != null && automaticTuning.getValue() == enabled) return;
-
-        changeAutomaticTuningRequested = true;
-        device.setAutomaticTuning(enabled);
+        if (device != null)
+            device.setAutomaticTuning(enabled);
     }
 
-    public void performTuning() {
-        if (device != null)
-            device.performTuning();
+    public boolean performTuning() {
+        if (device == null) return false;
+        device.performTuning();
+        return true;
     }
 
     public void closeSimulatedDevice() {
@@ -161,7 +157,7 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
             device.close();
     }
 
-    public LiveData<Boolean> getDeviceState() {
+    public LiveData<DeviceState> getDeviceState() {
         return deviceState;
     }
 
@@ -185,11 +181,11 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
         return tuningState;
     }
 
-    public LiveData<Boolean> getAutomaticTuning() {
-        return automaticTuning;
-    }
-
     public LiveData<Frame> getFrame() {
         return frame;
+    }
+
+    public enum DeviceState {
+        Disconnected, Connected, Usb, Embedded
     }
 }
