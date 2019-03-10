@@ -16,19 +16,19 @@
     <string name="flirsettings_batterystate_key">battery_state</string>
     <string name="flirsettings_batterystate_title">Status da bateria</string>
     <string-array name="flirsettings_batterystate_values">
-        <item>Desconhecido</item>
-        <item>Falha no dispositivo, carregando celular</item>
-        <item>Carregando apenas celular</item>
-        <item>Falha</item>
-        <item>Falha: Baixa corrente</item>
-        <item>Falha: Superaquecido</item>
-        <item>Carregando</item>
-        <item>Carregando</item>
         <item>Carregador desconectado</item>
+        <item>Carregando</item>
+        <item>Falha</item>
+        <item>Falha: Superaquecido</item>
+        <item>Falha: Baixa corrente</item>
+        <item>Falha no dispositivo, carregando celular</item>
+        <item>Carregando</item>
+        <item>Carregando apenas celular</item>
+        <item>Desconhecido</item>
     </string-array>
 
     <string name="flirsettings_batterypercentage_key">battery_percentage</string>
-    <string name="flirsettings_batterypercentage_title">Porcentagem da bateria</string>
+    <string name="flirsettings_batterypercentage_title">Nível da bateria</string>
     <string name="flirsettings_batterypercentage_summary">%1$d%%</string>
 
     <string name="flirsettings_loweraccuracy_key">lower_accuracy</string>
@@ -46,11 +46,11 @@
     <string name="flirsettings_tuningstate_key">tuning_state</string>
     <string name="flirsettings_tuningstate_title">Status da calibração</string>
     <string-array name="flirsettings_tuningstate_values">
-        <item>Aproximadamente calibrado</item>
+        <item>Necessário calibrar</item>
         <item>Calibrando...</item>
         <item>Calibrado</item>
         <item>Necessário calibrar</item>
-        <item>Necessário calibrar</item>
+        <item>Aproximadamente calibrado</item>
         <item>Desconhecido</item>
     </string-array>
 

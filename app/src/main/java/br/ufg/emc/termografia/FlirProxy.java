@@ -20,7 +20,7 @@ import br.ufg.emc.termografia.util.Converter;
 import br.ufg.emc.termografia.util.Preferences;
 
 public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.StreamDelegate, Device.PowerUpdateDelegate {
-    private static final String TAG = FlirProxy.class.getSimpleName();
+    private static final String LOG_TAG = FlirProxy.class.getSimpleName();
 
     private AppCompatActivity activityContext;
     private Device device;
@@ -46,7 +46,7 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
         try {
             Device.startDiscovery(activityContext, this);
         } catch(IllegalStateException e) {
-            Log.w(TAG, "Tried to start discovery multiple times in succession");
+            Log.w(LOG_TAG, "Tried to start discovery multiple times in succession");
         } catch (SecurityException e) {
             // On some platforms, we need the user to select the app to give us permission to the USB device.
             Toast.makeText(activityContext, "Please insert FLIR One and select " + activityContext.getString(R.string.app_name), Toast.LENGTH_LONG).show();
@@ -83,7 +83,7 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @Override
     public void onDeviceConnected(Device connectedDevice) {
-        Log.i(TAG, "Device connected");
+        Log.i(LOG_TAG, "Device connected");
 
         device = connectedDevice;
 
@@ -107,7 +107,7 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @Override
     public void onDeviceDisconnected(Device disconnectedDevice) {
-        Log.i(TAG, "Device disconnected");
+        Log.i(LOG_TAG, "Device disconnected");
         device = null;
         resetDeviceData();
     }
@@ -129,7 +129,6 @@ public class FlirProxy implements LifecycleObserver, Device.Delegate, Device.Str
 
     @Override
     public void onAutomaticTuningChanged(boolean enabled) {
-        Log.d(TAG, "onAutomaticTuningChanged: " + String.valueOf(enabled)); // TODO: Remove debug
         String key = activityContext.getString(R.string.flirsettings_automatictuning_key);
         Preferences.getPreferences(activityContext).edit()
                 .putBoolean(key, enabled)
