@@ -1,13 +1,20 @@
 <resources>
     <string name="app_name">Termografia</string>
-    <string name="all_devicesettings">Configurações</string>
+    <string name="all_open">Abrir</string>
     <string name="all_close">Fechar</string>
+    <string name="all_devicesettings">Configurações</string>
+
+    <string name="all_frame_filename_prefix">FLIR</string>
+    <string name="all_filename_separator">_</string>
+    <string name="all_filename_timestamp_pattern">yyyyMMdd_HHmmss</string>
 
     <!--PreviewActivity-->
     <string name="preview_title">Pré-visualização</string>
     <string name="preview_connectdevice">Conecte sua\nFLIR One</string>
     <string name="preview_capture">Capturar</string>
     <string name="preview_analyze">Analisar</string>
+    <string name="preview_capture_success">Imagem capturada com sucesso!</string>
+    <string name="preview_capture_error">Ocorreu um erro ao capturar a imagem...</string>
 
     <!--AnalysisActivity-->
     <string name="analysis_label">Análise Termográfica</string>

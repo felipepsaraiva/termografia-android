@@ -72,7 +72,8 @@
         <item>BlendedMSXRGBA8888Image</item>
         <item>ThermalRGBA8888Image</item>
     </string-array>
-    
+
+    <!-- TODO: Configurar valores min e max corretamente (Perguntar ao professor) -->
     <string name="flirsettings_msxdistance_key">msx_distance</string>
     <string name="flirsettings_msxdistance_title">Distância do objeto</string>
     <string name="flirsettings_msxdistance_summary">%1$.1f m</string>

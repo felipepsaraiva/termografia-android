@@ -9,9 +9,11 @@ import br.ufg.emc.termografia.R;
 import br.ufg.emc.termografia.util.Converter;
 import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
+import android.Manifest;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,8 +22,16 @@ import com.flir.flironesdk.Frame;
 import com.flir.flironesdk.FrameProcessor;
 import com.flir.flironesdk.RenderedImage;
 import com.flir.flironesdk.SimulatedDevice;
+import com.github.florent37.runtimepermission.PermissionResult;
+import com.github.florent37.runtimepermission.RuntimePermission;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class PreviewActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -30,6 +40,7 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
     private ThermalFrameViewModel frameViewModel;
     private FlirProxy flir;
     private FrameProcessor processor;
+    private boolean imageCaptureRequested = false;
 
     private GLSurfaceView glSurfaceView;
     private BottomNavigationView bottomNavigationView;
@@ -123,6 +134,11 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
             if (frame == null) return;
             processor.processFrame(frame, FrameProcessor.QueuingOption.CLEAR_QUEUED);
             glSurfaceView.requestRender();
+
+            if (imageCaptureRequested) {
+                imageCaptureRequested = false;
+                requestPermissionsToCaptureFrame(frame);
+            }
         });
     }
 
@@ -134,11 +150,65 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
                         .show(getSupportFragmentManager(), FlirDeviceDialogFragment.FRAGMENT_TAG);
                 break;
 
+            case R.id.menu_preview_capture:
+                FlirProxy.DeviceState deviceState = flir.getDeviceState().getValue();
+                if (deviceState != null && deviceState != FlirProxy.DeviceState.Disconnected)
+                    imageCaptureRequested = true;
+                break;
+
+            case  R.id.menu_preview_analyze:
+                openAnalysisActvity();
+                break;
+
             default:
                 Log.w(LOG_TAG, "Selection of menu item \"" + menuItem.getTitle() + "\" was not handled by the listener");
         }
 
         return false;
+    }
+
+    private void requestPermissionsToCaptureFrame(@NonNull Frame frame) {
+        RuntimePermission.askPermission(this)
+                .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .onAccepted((PermissionResult result) -> saveFrame(frame))
+                .ask();
+    }
+
+    private void saveFrame(Frame frame) {
+        new Thread(() -> {
+            File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File appDir = new File(pictures, getString(R.string.app_name));
+
+            String timeStamp = new SimpleDateFormat(getString(R.string.all_filename_timestamp_pattern), Locale.getDefault()).format(new Date());
+            String fileName = getString(R.string.all_frame_filename_prefix) + getString(R.string.all_filename_separator) + timeStamp;
+
+            try {
+                if (!appDir.exists()) appDir.mkdirs();
+                File frameFile = new File(appDir, fileName + ".jpg");
+                if (!frameFile.createNewFile())
+                    throw new IOException("File \"" + frameFile.getAbsolutePath() + "\" could not be created");
+
+                Log.i(LOG_TAG, "New file created: " + frameFile.getAbsolutePath());
+                frame.save(frameFile, processor);
+
+                runOnUiThread(() -> {
+                    frameViewModel.setFramePath(frameFile.getAbsolutePath());
+                    Snackbar.make(findViewById(R.id.root_preview), getString(R.string.preview_capture_success), Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.all_open), (View view) -> openAnalysisActvity())
+                            .show();
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    Snackbar.make(findViewById(R.id.root_preview), getString(R.string.preview_capture_error), Snackbar.LENGTH_SHORT)
+                            .show();
+                });
+            }
+        }).start();
+    }
+
+    private void openAnalysisActvity() {
+        Log.w(LOG_TAG, "Action \"openAnalysisActivity\" was not handled");
     }
 
     // Enables SimulatedDevice on debug builds
