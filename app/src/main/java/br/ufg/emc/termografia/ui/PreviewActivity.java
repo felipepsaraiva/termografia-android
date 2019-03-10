@@ -7,6 +7,7 @@ import br.ufg.emc.termografia.BuildConfig;
 import br.ufg.emc.termografia.FlirProxy;
 import br.ufg.emc.termografia.R;
 import br.ufg.emc.termografia.util.Converter;
+import br.ufg.emc.termografia.util.ExternalStorageUtils;
 import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
 import android.Manifest;
@@ -176,19 +177,8 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
 
     private void saveFrame(Frame frame) {
         new Thread(() -> {
-            File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File appDir = new File(pictures, getString(R.string.app_name));
-
-            String timeStamp = new SimpleDateFormat(getString(R.string.all_filename_timestamp_pattern), Locale.getDefault()).format(new Date());
-            String fileName = getString(R.string.all_frame_filename_prefix) + getString(R.string.all_filename_separator) + timeStamp;
-
             try {
-                if (!appDir.exists()) appDir.mkdirs();
-                File frameFile = new File(appDir, fileName + ".jpg");
-                if (!frameFile.createNewFile())
-                    throw new IOException("File \"" + frameFile.getAbsolutePath() + "\" could not be created");
-
-                Log.i(LOG_TAG, "New file created: " + frameFile.getAbsolutePath());
+                File frameFile = ExternalStorageUtils.createNewFrameFile(this);
                 frame.save(frameFile, processor);
 
                 runOnUiThread(() -> {

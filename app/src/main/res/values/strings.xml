@@ -4,10 +4,6 @@
     <string name="all_close">Fechar</string>
     <string name="all_devicesettings">Configurações</string>
 
-    <string name="all_frame_filename_prefix">FLIR</string>
-    <string name="all_filename_separator">_</string>
-    <string name="all_filename_timestamp_pattern">yyyyMMdd_HHmmss</string>
-
     <!--PreviewActivity-->
     <string name="preview_title">Pré-visualização</string>
     <string name="preview_connectdevice">Conecte sua\nFLIR One</string>

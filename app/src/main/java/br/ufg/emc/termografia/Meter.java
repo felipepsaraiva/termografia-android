@@ -58,6 +58,14 @@ public class Meter extends RelativePoint {
         this.avgDiscrepancy = Converter.fromMilli(biggest - smallest);
     }
 
+    public void updateTemperature(ThermalData data) {
+        updateTemperature(data.getTemperatures(), data.getWidth(), data.getHeight());
+    }
+
+    public void setDifference(double difference) {
+        this.difference = difference;
+    }
+
     public double updateDifference(double ambientTemperature) {
         difference = temperature - ambientTemperature;
         return difference;
