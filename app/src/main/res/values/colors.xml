@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--Default Android Colors-->
-    <!--<color name="colorPrimary">#008577</color>-->
-    <!--<color name="colorPrimaryDark">#00574B</color>-->
-    <!--<color name="colorAccent">#D81B60</color>-->
-
     <color name="colorPrimary">@color/gray_700</color>
     <color name="colorPrimaryDark">@color/gray_900</color>
     <color name="colorAccent">@color/blue_gray_600</color>
 
-    <color name="light_bg">@color/gray_400</color>
+    <!-- TODO: Ajustar cores do termometro -->
+    <color name="meter_default">@color/gray_400</color>
+    <color name="meter_ambient">@color/light_green_300</color>
+    <color name="meter_selected">@color/white</color>
 </resources>

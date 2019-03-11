@@ -10,4 +10,10 @@
 
     <!--PreviewActivity-->
     <dimen name="textsize_preview_connectdevice_large">40sp</dimen>
+
+    <!--ThermometerSurfaceView-->
+    <!-- TODO: Ajustar tamanho dos medidores -->
+    <dimen name="size_thermometer_meter_outer">40dp</dimen>
+    <dimen name="size_thermometer_meter_inner">8dp</dimen>
+    <dimen name="textsize_thermometer_paint">14sp</dimen>
 </resources>

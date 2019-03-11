@@ -18,4 +18,7 @@
     <!--FlirDeviceDialogFragment-->
     <string name="flirdevice_title">Configurações</string>
     <string name="flirdevice_tuning_requested">Processo de calibração solicitado</string>
+
+    <!--ThermometerSurfaceView-->
+    <string name="thermometer_temperature">%1$.2f ºC</string>
 </resources>
