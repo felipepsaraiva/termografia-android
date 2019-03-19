@@ -4,7 +4,9 @@ import android.content.Context;
 
 import br.ufg.emc.termografia.R;
 
-public abstract class Converter {
+public class Converter {
+    private Converter() {}
+
     public static double fromMilli(int milli) {
         return (double)milli / 100.0;
     }

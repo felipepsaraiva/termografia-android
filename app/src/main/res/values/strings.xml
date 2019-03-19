@@ -14,6 +14,9 @@
 
     <!--AnalysisActivity-->
     <string name="analysis_label">Análise Termográfica</string>
+    <string name="analysis_meters">Medidores</string>
+    <string name="analysis_diagnosis">Diagnóstico</string>
+    <string name="analysis_load_error">A imagem não existe ou não é uma imagem termográfica...</string>
 
     <!--FlirDeviceDialogFragment-->
     <string name="flirdevice_title">Configurações</string>

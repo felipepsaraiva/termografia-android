@@ -12,7 +12,7 @@ import java.util.Locale;
 
 import br.ufg.emc.termografia.R;
 
-public abstract class ExternalStorageUtils {
+public class ExternalStorageUtils {
     private static final String LOG_TAG = ExternalStorageUtils.class.getSimpleName();
 
     public static final String FILENAME_SEPARATOR = "_";
@@ -20,6 +20,8 @@ public abstract class ExternalStorageUtils {
 
     public static final String FRAME_PREFIX = "FLIR";
     public static final String FRAME_EXTENSION = ".jpg";
+
+    private ExternalStorageUtils() {}
 
     public static File getAppDirectory(Context context) throws IOException {
         File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);

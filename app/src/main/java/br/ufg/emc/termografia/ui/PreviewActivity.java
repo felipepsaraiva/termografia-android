@@ -11,10 +11,11 @@ import br.ufg.emc.termografia.util.ExternalStorageUtils;
 import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
 import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,9 +31,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 public class PreviewActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -113,10 +111,6 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
             }
             processor.setEmissivity(emissivity);
         });
-        frameViewModel.getFramePath().observe(this, (String path) ->
-                bottomNavigationView.getMenu().findItem(R.id.menu_preview_analyze)
-                        .setEnabled(path != null && !path.isEmpty())
-        );
 
         flir.getDeviceState().observe(this, (FlirProxy.DeviceState state) -> {
             boolean connected = (state != FlirProxy.DeviceState.Disconnected);
@@ -198,7 +192,10 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
     }
 
     private void openAnalysisActvity() {
-        Log.w(LOG_TAG, "Action \"openAnalysisActivity\" was not handled");
+        Intent intent = new Intent(this, AnalysisActivity.class);
+        String path = frameViewModel.getFramePath().getValue();
+        if (path != null) intent.setData(Uri.fromFile(new File(path)));
+        startActivity(intent);
     }
 
     // Enables SimulatedDevice on debug builds

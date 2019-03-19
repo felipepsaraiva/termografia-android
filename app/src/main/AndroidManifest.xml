@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="br.ufg.emc.termografia">
 
     <uses-feature
@@ -17,6 +18,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".ui.AnalysisActivity"
+            android:label="@string/analysis_label"
+            android:screenOrientation="portrait">
+
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/jpeg" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".ui.PreviewActivity"
@@ -37,7 +50,6 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-
     </application>
 
 </manifest>

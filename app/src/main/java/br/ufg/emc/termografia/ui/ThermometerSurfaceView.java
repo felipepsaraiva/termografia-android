@@ -66,7 +66,7 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
     }
 
     private void init(Context context) {
-        // TODO: Verificar se esse cast é valido
+        // TODO: Encontrar alternativa para esse cast (Chamar a função init explicitamente?)
         activity = (AppCompatActivity)context;
         activity.getLifecycle().addObserver(this);
 
@@ -88,7 +88,7 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         paint.setColor(defaultColor);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTextSize(res.getDimensionPixelSize(R.dimen.textsize_thermometer_paint));
-        paint.setShadowLayer(2, 0, 0, Color.BLACK);
+        paint.setShadowLayer(3, 0, 0, Color.BLACK);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -155,16 +155,17 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         else if (meter.isSelected()) color = selectedColor;
         else color = defaultColor;
 
-        final Drawable outer = ContextCompat.getDrawable(getContext(), R.drawable.ic_thermometer_outer).mutate();
+        final Drawable outer = ContextCompat.getDrawable(getContext(), R.drawable.ic_all_meter).mutate();
         outer.setBounds(getBoundsFor(centerX, centerY, meterOuterSize));
         outer.setTint(color);
         outer.draw(canvas);
 
-        final Drawable inner = ContextCompat.getDrawable(getContext(), R.drawable.ic_thermometer_inner).mutate();
+        final Drawable inner = ContextCompat.getDrawable(getContext(), R.drawable.ic_all_add).mutate();
         inner.setBounds(getBoundsFor(centerX, centerY, meterInnerSize));
         inner.setTint(color);
         inner.draw(canvas);
 
+        // TODO: Escrever texto acima do medidor caso ele esteja fora da superficie
         final double temp = (isAmbient ? meter.getTemperature() : meter.getDifference());
         String text = activity.getString(R.string.thermometer_temperature, temp);
         if (!isAmbient && temp >= 0) text = "+" + text;

@@ -15,7 +15,6 @@
 
     <item
         android:id="@+id/menu_preview_analyze"
-        android:enabled="false"
         android:icon="@drawable/ic_all_edit"
         android:title="@string/preview_analyze"
         android:tooltipText="@string/preview_analyze" />

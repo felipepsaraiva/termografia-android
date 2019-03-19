@@ -9,7 +9,9 @@ import com.flir.flironesdk.RenderedImage;
 
 import br.ufg.emc.termografia.R;
 
-public abstract class Preferences {
+public class Preferences {
+    private Preferences() {}
+
     public static SharedPreferences getPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
