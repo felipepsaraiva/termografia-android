@@ -89,19 +89,27 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
             processFrame();
         });
         frameViewModel.getEmissivity().observe(this, (String emissivityType) -> {
+            // TODO: Verificar se a temperatura muda quando a emissividade muda
             float emissivity;
             switch (emissivityType) {
+                case "glossy":
+                    emissivity = FrameProcessor.EMISSIVITY_GLOSSY;
+                    break;
+
                 case "semi-glossy":
                     emissivity = FrameProcessor.EMISSIVITY_SEMI_GLOSSY;
                     break;
+
                 case "semi-matte":
                     emissivity = FrameProcessor.EMISSIVITY_SEMI_MATTE;
                     break;
+
                 case "matte":
                     emissivity = FrameProcessor.EMISSIVITY_MATTE;
                     break;
 
                 default:
+                    Log.w(LOG_TAG, "Selected value for emissivity does not exist. Setting default...");
                     emissivity = FrameProcessor.EMISSIVITY_GLOSSY;
             }
 
@@ -161,7 +169,7 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
             int[] temperatures = renderedImage.thermalPixelValues();
             int width = renderedImage.width();
             int height = renderedImage.height();
-            imageViewModel.setThermalData(new ThermalData(temperatures, width,height));
+            imageViewModel.setThermalData(new ThermalData(temperatures, width, height));
         } else if (renderedImage.imageType() == RenderedImage.ImageType.valueOf(frameViewModel.getImageType().getValue())) {
             imageViewModel.setImage(renderedImage.getBitmap());
         }
@@ -170,6 +178,16 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
+            case R.id.menu_analysis_devicesettings:
+                FlirDeviceDialogFragment.newInstance(null)
+                        .show(getSupportFragmentManager(), FlirDeviceDialogFragment.FRAGMENT_TAG);
+                break;
+
+            case R.id.menu_analysis_meters:
+                MetersDialogFragment.newInstance()
+                        .show(getSupportFragmentManager(), MetersDialogFragment.FRAGMENT_TAG);
+                break;
+
             default:
                 Log.w(LOG_TAG, "Selection of menu item \"" + menuItem.getTitle() + "\" was not handled by the listener");
         }
