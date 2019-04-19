@@ -53,7 +53,7 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
         surfaceView = findViewById(R.id.thermometersurfaceview_analysis);
 
         bottomNavigationView = findViewById(R.id.bottomnavigationview_analysis_actions);
-        bottomNavigationView.setSelectedItemId(R.id.menu_analysis_meters);
+        bottomNavigationView.setSelectedItemId(R.id.menu_analysis_diagnosis);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
         frameViewModel = ViewModelProviders.of(this).get(ThermalFrameViewModel.class);

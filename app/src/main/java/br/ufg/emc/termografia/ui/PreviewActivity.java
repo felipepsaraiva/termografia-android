@@ -70,6 +70,7 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         bottomNavigationView = findViewById(R.id.bottomnavigationview_preview_actions);
+        // TODO: Item selecionado não fica com aparencia de desabilitado
         bottomNavigationView.setSelectedItemId(R.id.menu_preview_capture);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 

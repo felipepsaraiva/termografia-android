@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- TODO: Adicionar ação de selecionar outra imagem -->
+
     <item
         android:id="@+id/menu_analysis_devicesettings"
         android:icon="@drawable/ic_all_devicesettings"
         android:title="@string/all_devicesettings"
         android:tooltipText="@string/all_devicesettings" />
-
-    <!-- TODO: Adicionar ação de selecionar outra imagem -->
-
-    <item
-        android:id="@+id/menu_analysis_meters"
-        android:enabled="false"
-        android:icon="@drawable/ic_all_meter"
-        android:title="@string/analysis_meters"
-        android:tooltipText="@string/analysis_meters" />
 
     <!-- TODO: Mudar o ícone da ação de diagnóstico -->
     <item
@@ -22,4 +15,11 @@
         android:icon="@drawable/ic_all_close"
         android:title="@string/analysis_diagnosis"
         android:tooltipText="@string/analysis_diagnosis" />
+
+    <item
+        android:id="@+id/menu_analysis_meters"
+        android:enabled="false"
+        android:icon="@drawable/ic_all_meter"
+        android:title="@string/analysis_meters"
+        android:tooltipText="@string/analysis_meters" />
 </menu>

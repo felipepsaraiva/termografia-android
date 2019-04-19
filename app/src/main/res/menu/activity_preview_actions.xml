@@ -13,6 +13,7 @@
         android:title="@string/preview_capture"
         android:tooltipText="@string/preview_capture" />
 
+    <!-- TODO: Mudar o ícone da ação de analisar -->
     <item
         android:id="@+id/menu_preview_analyze"
         android:icon="@drawable/ic_all_edit"

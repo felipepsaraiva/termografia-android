@@ -73,7 +73,10 @@ public class ThermalImageViewModel extends ViewModel {
         return meterList;
     }
 
-    // Handling Meters
+    /**
+     * Handling Meters
+     */
+
     public void addMeter(Meter meter, boolean notify) {
         fixedMeterList.add(meter);
         updateMeterTemperature(meter);
