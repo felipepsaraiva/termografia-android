@@ -5,7 +5,7 @@ import br.ufg.emc.termografia.util.RelativePoint;
 
 public class Meter extends RelativePoint {
     private boolean ambient = false, selected = false;
-    private double temperature = 0, avgDiscrepancy = 0, difference = 0;
+    private double temperature = 0, discrepancy = 0, difference = 0;
 
     public Meter() {
         super(0, 0);
@@ -55,7 +55,7 @@ public class Meter extends RelativePoint {
 
         average = average / indexes.length;
         this.temperature = Converter.milliKelvinToCelsius(average);
-        this.avgDiscrepancy = Converter.fromMilli(biggest - smallest);
+        this.discrepancy = Converter.fromMilli(biggest - smallest);
     }
 
     public void updateTemperature(ThermalData data) {
@@ -83,12 +83,12 @@ public class Meter extends RelativePoint {
         return temperature;
     }
 
-    public double getAverageDiscrepancy() {
-        return avgDiscrepancy;
+    public double getDiscrepancy() {
+        return discrepancy;
     }
 
-    public double getPercentageAverageDiscrepancy() {
-        return avgDiscrepancy / temperature * 100;
+    public double getPercentageDiscrepancy() {
+        return discrepancy / temperature * 100;
     }
 
     public double getDifference() {

@@ -183,6 +183,11 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
                         .show(getSupportFragmentManager(), FlirDeviceDialogFragment.FRAGMENT_TAG);
                 break;
 
+            case R.id.menu_analysis_diagnosis:
+                DiagnosisDialogFragment.newInstance()
+                        .show(getSupportFragmentManager(), DiagnosisDialogFragment.FRAGMENT_TAG);
+                break;
+
             case R.id.menu_analysis_meters:
                 MetersDialogFragment.newInstance()
                         .show(getSupportFragmentManager(), MetersDialogFragment.FRAGMENT_TAG);

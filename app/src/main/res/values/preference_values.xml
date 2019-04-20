@@ -122,4 +122,25 @@
         <item>semi-matte</item>
         <item>matte</item>
     </string-array>
+
+    
+    <!-- Diagnosis Preferences -->
+    <string name="diagnosissettings_category_parameters_key">parameters_category</string>
+    <string name="diagnosissettings_category_parameters_title">Características</string>
+    
+    <string name="diagnosissettings_material_key">material</string>
+    <string name="diagnosissettings_material_title">Material</string>
+    <string name="diagnosissettings_material_default">copper</string>
+    <string-array name="diagnosissettings_material_entries">
+        <item>Cobre</item>
+        <item>Alumínio</item>
+    </string-array>
+    <string-array name="diagnosissettings_material_entryvalues">
+        <item>copper</item>
+        <item>aluminium</item>
+    </string-array>
+
+    <string name="diagnosissettings_loading_key">loading</string>
+    <string name="diagnosissettings_loading_title">Carregamento (pu)</string>
+    <string name="diagnosissettings_loading_default">1.000</string>
 </resources>

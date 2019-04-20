@@ -31,4 +31,7 @@
 
     <!--ThermometerSurfaceView-->
     <string name="thermometer_temperature">%1$.2f ºC</string>
+
+    <!--DiagnosisDialogFragment-->
+    <string name="diagnosis_title">Diagnóstico</string>
 </resources>

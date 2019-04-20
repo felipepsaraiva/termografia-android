@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
+
 import br.ufg.emc.termografia.Meter;
 import br.ufg.emc.termografia.R;
 import br.ufg.emc.termografia.viewmodel.ThermalImageViewModel;
@@ -68,10 +69,11 @@ public class MeterListAdapter extends RecyclerView.Adapter<MeterListAdapter.Mete
                 holder.remove.setOnClickListener(view -> imageViewModel.removeMeter(m));
             }
 
-            double temperature =  m.getTemperature();
-            double percentage = (m.getAverageDiscrepancy() / temperature) * 100;
-            String text = context.getString(R.string.meters_temperature, temperature, percentage);
-            holder.temperature.setText(text);
+            holder.temperature.setText(context.getString(
+                    R.string.meters_temperature,
+                    m.getTemperature(),
+                    m.getPercentageDiscrepancy()
+            ));
         } else {
             holder.root.setVisibility(View.GONE);
             holder.root.setOnClickListener(null);
