@@ -21,6 +21,7 @@
     <!--FlirDeviceDialogFragment-->
     <string name="flirdevice_title">Configurações</string>
     <string name="flirdevice_tuning_requested">Processo de calibração solicitado</string>
+    <string name="flirdevice_tuning_request_error">Não foi possível solicitar calibração</string>
 
     <!--MetersDialogFragment-->
     <string name="meters_title">Medidores</string>

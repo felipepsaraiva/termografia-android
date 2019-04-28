@@ -1,6 +1,5 @@
 package br.ufg.emc.termografia.ui;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -18,10 +17,9 @@ import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
 // TODO: Bloquear a preferência msx_distance quando o image_type for diferente de BlendedMSX
 
-public class FlirSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class FlirSettingsFragment extends PreferenceFragmentCompat {
     private static final String LOG_TAG = FlirSettingsFragment.class.getSimpleName();
 
-    private ThermalFrameViewModel frameViewModel;
     private FlirProxy flir;
 
     public FlirSettingsFragment() { /* Required empty public constructor */ }
@@ -35,8 +33,6 @@ public class FlirSettingsFragment extends PreferenceFragmentCompat implements Sh
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        frameViewModel = ViewModelProviders.of(requireActivity()).get(ThermalFrameViewModel.class);
-        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         setupObservers();
     }
 
@@ -126,31 +122,14 @@ public class FlirSettingsFragment extends PreferenceFragmentCompat implements Sh
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-    }
-
     private boolean onTuningRequested() {
         if (flir != null && flir.performTuning()) {
             Toast.makeText(requireContext(), R.string.flirdevice_tuning_requested, Toast.LENGTH_SHORT).show();
             return true;
         }
 
+        Toast.makeText(requireContext(), R.string.flirdevice_tuning_request_error, Toast.LENGTH_SHORT).show();
         return false;
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
-        if (getString(R.string.flirsettings_msxdistance_key).equals(key))
-            frameViewModel.setMsxDistance(preferences.getInt(key, getResources().getInteger(R.integer.flirsettings_msxdistance_default)));
-        else if (getString(R.string.flirsettings_palette_key).equals(key))
-            frameViewModel.setPalette(preferences.getString(key, getString(R.string.flirsettings_palette_default)));
-        else if (getString(R.string.flirsettings_emissivity_key).equals(key))
-            frameViewModel.setEmissivity(preferences.getString(key, getString(R.string.flirsettings_emissivity_default)));
-        else if (getString(R.string.flirsettings_imagetype_key).equals(key))
-            frameViewModel.setImageType(preferences.getString(key, getString(R.string.flirsettings_imagetype_default)));
     }
 
     private void setFlirProxy(FlirProxy proxy) {

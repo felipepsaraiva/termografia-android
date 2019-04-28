@@ -2,27 +2,29 @@ package br.ufg.emc.termografia.viewmodel;
 
 import android.app.Application;
 import android.content.SharedPreferences;
-
-import com.flir.flironesdk.RenderedImage;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import br.ufg.emc.termografia.R;
 import br.ufg.emc.termografia.util.Preferences;
 
-public class ThermalFrameViewModel extends AndroidViewModel {
+public class ThermalFrameViewModel extends AndroidViewModel implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private Application app;
+    private SharedPreferences preferences;
+
     private MutableLiveData<String> imageType = new MutableLiveData<>();
     private MutableLiveData<Integer> msxDistance = new MutableLiveData<>();
     private MutableLiveData<String> palette = new MutableLiveData<>();
     private MutableLiveData<String> emissivity = new MutableLiveData<>();
     private MutableLiveData<String> framePath = new MutableLiveData<>();
 
-    public ThermalFrameViewModel(@NonNull Application app) {
-        super(app);
-        SharedPreferences preferences = Preferences.getPreferences(app);
+    public ThermalFrameViewModel(@NonNull Application application) {
+        super(application);
+        app = application;
+        preferences = Preferences.getPreferences(app);
 
         String key, defaultString;
         int defaultInt;
@@ -44,21 +46,41 @@ public class ThermalFrameViewModel extends AndroidViewModel {
         this.emissivity.setValue(preferences.getString(key, defaultString));
 
         this.framePath.setValue(null);
+
+        preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
-    public void setImageType(String imageType) {
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
+        if (app.getString(R.string.flirsettings_msxdistance_key).equals(key))
+            setMsxDistance(preferences.getInt(key, app.getResources().getInteger(R.integer.flirsettings_msxdistance_default)));
+        else if (app.getString(R.string.flirsettings_palette_key).equals(key))
+            setPalette(preferences.getString(key, app.getString(R.string.flirsettings_palette_default)));
+        else if (app.getString(R.string.flirsettings_emissivity_key).equals(key))
+            setEmissivity(preferences.getString(key, app.getString(R.string.flirsettings_emissivity_default)));
+        else if (app.getString(R.string.flirsettings_imagetype_key).equals(key))
+            setImageType(preferences.getString(key, app.getString(R.string.flirsettings_imagetype_default)));
+    }
+
+    private void setImageType(String imageType) {
         this.imageType.setValue(imageType);
     }
 
-    public void setMsxDistance(int msxDistance) {
+    private void setMsxDistance(int msxDistance) {
         this.msxDistance.setValue(msxDistance);
     }
 
-    public void setPalette(String palette) {
+    private void setPalette(String palette) {
         this.palette.setValue(palette);
     }
 
-    public void setEmissivity(String emissivity) {
+    private void setEmissivity(String emissivity) {
         this.emissivity.setValue(emissivity);
     }
 
