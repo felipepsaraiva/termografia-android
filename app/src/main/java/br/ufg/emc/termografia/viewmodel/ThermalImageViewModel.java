@@ -20,21 +20,24 @@ public class ThermalImageViewModel extends ViewModel {
     private MutableLiveData<Bitmap> image = new MutableLiveData<>();
     private MutableLiveData<ThermalData> thermalData = new MutableLiveData<>();
     private MutableLiveData<List<Meter>> meterList = new MutableLiveData<>();
+    private MutableLiveData<Meter> selectedMeter = new MutableLiveData<>();
 
     private List<Meter> fixedMeterList;
     private Meter ambient;
+    private Meter target;
 
     public ThermalImageViewModel() {
         fixedMeterList = Collections.synchronizedList(new ArrayList<>());
+        target = null;
 
         ambient = new Meter(0.5, 0.5);
-        ambient.setSelected(true);
         ambient.setAmbient(true);
         addMeter(ambient, false);
 
         image.setValue(null);
         thermalData.setValue(null);
         meterList.setValue(fixedMeterList);
+        selectedMeter.setValue(null);
     }
 
     public void setImage(Bitmap bitmap) {
@@ -57,8 +60,8 @@ public class ThermalImageViewModel extends ViewModel {
         notifyMeterUpdate();
     }
 
-    private void notifyMeterUpdate() {
-        meterList.setValue(fixedMeterList);
+    public void setSelectedMeter(Meter meter) {
+        selectedMeter.setValue(meter);
     }
 
     public LiveData<Bitmap> getImage() {
@@ -73,6 +76,14 @@ public class ThermalImageViewModel extends ViewModel {
         return meterList;
     }
 
+    public LiveData<Meter> getSelectedMeter() {
+        return selectedMeter;
+    }
+
+    private void notifyMeterUpdate() {
+        meterList.setValue(fixedMeterList);
+    }
+
     /**
      * Handling Meters
      */
@@ -83,9 +94,8 @@ public class ThermalImageViewModel extends ViewModel {
         if (notify) notifyMeterUpdate();
     }
 
-    public void addNewMeter(boolean select) {
-        addMeter(new Meter(0.5, 0.5), !select);
-        if (select) setSelectedMeter(fixedMeterList.size() - 1);
+    public void addNewMeter() {
+        addMeter(new Meter(0.5, 0.5), true);
     }
 
     @Nullable
@@ -99,22 +109,12 @@ public class ThermalImageViewModel extends ViewModel {
         return ambient;
     }
 
-    @Nullable
-    public Meter getSelectedMeter() {
-        for (Meter m: fixedMeterList)
-            if (m.isSelected()) return m;
-        return null;
+    public void setTarget(Meter meter) {
+        target = meter;
     }
 
-    public void setSelectedMeter(int index) {
-        Meter m = getSelectedMeter();
-        if (m != null) m.setSelected(false);
-
-        m = getMeter(index);
-        if (m != null)
-            m.setSelected(true);
-
-        notifyMeterUpdate();
+    public Meter getTarget() {
+        return target;
     }
 
     private void updateMeterTemperature(Meter meter) {
@@ -131,12 +131,11 @@ public class ThermalImageViewModel extends ViewModel {
         }
     }
 
-    public void changeMeterPosition(RelativePoint point) {
-        Meter selected = getSelectedMeter();
-        if (selected == null) return;
+    public void changeTargetPosition(RelativePoint point) {
+        if (target == null) return;
 
-        selected.setRelativeCoordinates(point.getRelativeX(), point.getRelativeY());
-        updateMeterTemperature(selected);
+        target.setRelativeCoordinates(point.getRelativeX(), point.getRelativeY());
+        updateMeterTemperature(target);
         notifyMeterUpdate();
     }
 
@@ -144,7 +143,9 @@ public class ThermalImageViewModel extends ViewModel {
         if (meter.isAmbient()) return;
         fixedMeterList.remove(meter);
 
-        if (meter.isSelected()) setSelectedMeter(fixedMeterList.size() - 1);
-        else notifyMeterUpdate();
+        if (meter == target) target = null;
+        if (meter == selectedMeter.getValue()) setSelectedMeter(null);
+
+        notifyMeterUpdate();
     }
 }

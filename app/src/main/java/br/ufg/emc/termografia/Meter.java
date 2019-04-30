@@ -4,7 +4,7 @@ import br.ufg.emc.termografia.util.Converter;
 import br.ufg.emc.termografia.util.RelativePoint;
 
 public class Meter extends RelativePoint {
-    private boolean ambient = false, selected = false;
+    private boolean ambient = false;
     private double temperature = 0, discrepancy = 0, difference = 0;
 
     public Meter() {
@@ -21,10 +21,6 @@ public class Meter extends RelativePoint {
 
     public void setAmbient(boolean ambient) {
         this.ambient = ambient;
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
     }
 
     public void updateTemperature(int[] values, int width, int height) {
@@ -73,10 +69,6 @@ public class Meter extends RelativePoint {
 
     public boolean isAmbient() {
         return ambient;
-    }
-
-    public boolean isSelected() {
-        return selected;
     }
 
     public double getTemperature() {

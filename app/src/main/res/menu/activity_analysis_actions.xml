@@ -17,9 +17,9 @@
         android:tooltipText="@string/analysis_diagnosis" />
 
     <item
-        android:id="@+id/menu_analysis_meters"
+        android:id="@+id/menu_analysis_new_meter"
         android:enabled="false"
-        android:icon="@drawable/ic_all_meter"
-        android:title="@string/analysis_meters"
-        android:tooltipText="@string/analysis_meters" />
+        android:icon="@drawable/ic_all_add"
+        android:title="@string/analysis_new_meter"
+        android:tooltipText="@string/analysis_new_meter" />
 </menu>

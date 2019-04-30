@@ -14,7 +14,7 @@
 
     <!--AnalysisActivity-->
     <string name="analysis_label">Análise Termográfica</string>
-    <string name="analysis_meters">Medidores</string>
+    <string name="analysis_new_meter">Novo Medidor</string>
     <string name="analysis_diagnosis">Diagnóstico</string>
     <string name="analysis_load_error">A imagem não existe ou não é uma imagem termográfica...</string>
 
@@ -23,15 +23,14 @@
     <string name="flirdevice_tuning_requested">Processo de calibração solicitado</string>
     <string name="flirdevice_tuning_request_error">Não foi possível solicitar calibração</string>
 
-    <!--MetersDialogFragment-->
-    <string name="meters_title">Medidores</string>
-    <string name="meters_add">Novo medidor</string>
-    <string name="meters_name_default">Medidor %1$d</string>
-    <string name="meters_name_ambient">Ambiente</string>
-    <string name="meters_temperature">%1$.1f°C &#177; %2$.1f%%</string>
+    <!--MeterActionsDialogFragment-->
+    <string name="meter_actions_name">Medidor %1$s</string>
+    <string name="meter_actions_name_ambient">Ambiente</string>
+    <string name="meter_actions_temperature">%1$.1f°C &#177; %2$.1f%%</string>
+    <string name="meter_actions_remove">Remover</string>
 
     <!--ThermometerSurfaceView-->
-    <string name="thermometer_temperature">%1$.2f ºC</string>
+    <string name="thermometer_temperature">%1$.1f ºC</string>
 
     <!--DiagnosisDialogFragment-->
     <string name="diagnosis_title">Diagnóstico</string>

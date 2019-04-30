@@ -34,6 +34,7 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
 
     private AppCompatActivity activity;
     private ThermalImageViewModel imageViewModel;
+    private boolean moved = false;
 
     private SurfaceHolder surfaceHolder;
     private Thread thread;
@@ -42,8 +43,8 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
 
     private Paint paint;
     private Rect bounds;
-    private int meterOuterSize, meterInnerSize;
-    private int defaultColor, ambientColor, selectedColor;
+    private int meterOuterSize, meterInnerSize, meterBoundSize;
+    private int defaultColor, ambientColor;
 
     public ThermometerSurfaceView(Context context) {
         super(context);
@@ -78,11 +79,11 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         bounds = new Rect();
 
         Resources res = getResources();
+        meterBoundSize = res.getDimensionPixelSize(R.dimen.size_thermometer_meter_bound);
         meterOuterSize = res.getDimensionPixelSize(R.dimen.size_thermometer_meter_outer);
         meterInnerSize = res.getDimensionPixelSize(R.dimen.size_thermometer_meter_inner);
         defaultColor = ResourcesCompat.getColor(res, R.color.meter_default, null);
         ambientColor = ResourcesCompat.getColor(res, R.color.meter_ambient, null);
-        selectedColor = ResourcesCompat.getColor(res, R.color.meter_selected, null);
 
         paint = new Paint();
         paint.setColor(defaultColor);
@@ -150,10 +151,8 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         final int centerY = meter.getYForHeight(canvas.getHeight());
         final boolean isAmbient = meter.isAmbient();
 
-        int color;
+        int color = defaultColor;
         if (isAmbient) color = ambientColor;
-        else if (meter.isSelected()) color = selectedColor;
-        else color = defaultColor;
 
         final Drawable outer = ContextCompat.getDrawable(getContext(), R.drawable.ic_all_meter).mutate();
         outer.setBounds(getBoundsFor(centerX, centerY, meterOuterSize));
@@ -173,10 +172,30 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         canvas.drawText(text, centerX, centerY + (meterOuterSize/2f) + paint.getTextSize(), paint);
     }
 
-    private Rect getBoundsFor(int centerX, int centerY, int size) {
+    private Rect getBoundsFor(Rect rect, int centerX, int centerY, int size) {
+        if (rect == null) rect = new Rect();
         int half = size / 2;
-        bounds.set(centerX - half, centerY - half, centerX + half, centerY + half);
-        return bounds;
+        rect.set(centerX - half, centerY - half, centerX + half, centerY + half);
+        return rect;
+    }
+
+    private Rect getBoundsFor(int centerX, int centerY, int size) {
+        return getBoundsFor(bounds, centerX, centerY, size);
+    }
+
+    private Meter getMeterAt(int x, int y, int width, int height) {
+        List<Meter> meterList = imageViewModel.getMeterList().getValue();
+        if (meterList == null) return null;
+
+        Rect rect = new Rect();
+        Meter meter;
+        for (int i = meterList.size() - 1; i >= 0; i--) {
+            meter = meterList.get(i);
+            getBoundsFor(rect, meter.getXForWidth(width), meter.getYForHeight(height), meterBoundSize);
+            if (rect.contains(x, y)) return meter;
+        }
+
+        return null;
     }
 
     @Override
@@ -192,7 +211,31 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         if (y < 0) y = 0;
         else if (y >= height) y = height - 1;
 
-        imageViewModel.changeMeterPosition(new RelativePoint(x, y, width, height));
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN: {
+                moved = false;
+                Meter target = getMeterAt(x, y, width, height);
+                if (target == null) return false;
+                imageViewModel.setTarget(target);
+                return true;
+            }
+
+            case MotionEvent.ACTION_MOVE:
+                moved = true;
+                imageViewModel.changeTargetPosition(new RelativePoint(x, y, width, height));
+                return true;
+
+            case MotionEvent.ACTION_UP: {
+                if (!moved) {
+                    Meter target = imageViewModel.getTarget();
+                    if (target != null) imageViewModel.setSelectedMeter(target);
+                }
+
+                imageViewModel.setTarget(null);
+                return true;
+            }
+        }
+
         return true;
     }
 

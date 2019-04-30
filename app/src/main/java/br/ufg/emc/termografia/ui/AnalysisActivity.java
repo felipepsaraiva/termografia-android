@@ -3,6 +3,8 @@ package br.ufg.emc.termografia.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
+
+import br.ufg.emc.termografia.Meter;
 import br.ufg.emc.termografia.R;
 import br.ufg.emc.termografia.ThermalData;
 import br.ufg.emc.termografia.util.Converter;
@@ -66,8 +68,13 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
             boolean hasImage = image != null;
             surfaceView.setVisibility(hasImage ? View.VISIBLE : View.GONE);
             Menu actions = bottomNavigationView.getMenu();
-            actions.findItem(R.id.menu_analysis_meters).setEnabled(hasImage);
+            actions.findItem(R.id.menu_analysis_new_meter).setEnabled(hasImage);
             actions.findItem(R.id.menu_analysis_diagnosis).setEnabled(hasImage);
+        });
+        imageViewModel.getSelectedMeter().observe(this, (Meter selected) -> {
+            if (selected == null) return;
+            MeterActionsDialogFragment.newInstance()
+                    .show(getSupportFragmentManager(), MeterActionsDialogFragment.FRAGMENT_TAG);
         });
 
         frameViewModel.getImageType().observe(this, (String name) -> {
@@ -188,9 +195,8 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
                         .show(getSupportFragmentManager(), DiagnosisDialogFragment.FRAGMENT_TAG);
                 break;
 
-            case R.id.menu_analysis_meters:
-                MetersDialogFragment.newInstance()
-                        .show(getSupportFragmentManager(), MetersDialogFragment.FRAGMENT_TAG);
+            case R.id.menu_analysis_new_meter:
+                imageViewModel.addNewMeter();
                 break;
 
             default:
