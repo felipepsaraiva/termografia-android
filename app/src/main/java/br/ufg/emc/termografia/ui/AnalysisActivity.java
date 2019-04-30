@@ -41,6 +41,7 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
     private ThermalImageViewModel imageViewModel;
     private FrameProcessor processor;
     private LoadedFrame frame;
+    private boolean visible = false;
 
     private ThermometerSurfaceView surfaceView;
     private BottomNavigationView bottomNavigationView;
@@ -135,6 +136,19 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
                 .ask();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        visible = true;
+        processFrame();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        visible = false;
+    }
+
     private void loadFrame() {
         File frameFile = null;
 
@@ -166,7 +180,7 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
     }
 
     private void processFrame() {
-        if (frame == null) return;
+        if (frame == null || !visible) return;
         processor.processFrame(frame, FrameProcessor.QueuingOption.CLEAR_QUEUED);
     }
 

@@ -1,7 +1,6 @@
 package br.ufg.emc.termografia.viewmodel;
 
 import android.graphics.Bitmap;
-import android.preference.ListPreference;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +40,9 @@ public class ThermalImageViewModel extends ViewModel {
     }
 
     public void setImage(Bitmap bitmap) {
+        Bitmap oldImage = image.getValue();
         image.setValue(bitmap);
+        if (oldImage != null) oldImage.recycle();
     }
 
     public void setThermalData(ThermalData data) {

@@ -6,14 +6,12 @@ import android.widget.Toast;
 import com.flir.flironesdk.Device;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
 import br.ufg.emc.termografia.FlirProxy;
 import br.ufg.emc.termografia.R;
 import br.ufg.emc.termografia.util.Converter;
-import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
 // TODO: Bloquear a preferência msx_distance quando o image_type for diferente de BlendedMSX
 
@@ -99,17 +97,17 @@ public class FlirSettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.flir_device_settings, rootKey);
 
+        SeekBarPreference msxDistance = findPreference(getString(R.string.flirsettings_msxdistance_key));
+        float initial = Converter.msxDistance(requireContext(), msxDistance.getValue());
+        msxDistance.setSummary(getString(R.string.flirsettings_msxdistance_summary, initial));
+        msxDistance.setOnPreferenceChangeListener((Preference preference, Object value) -> {
+            float distance = Converter.msxDistance(requireContext(), (Integer) value);
+            preference.setSummary(getString(R.string.flirsettings_msxdistance_summary, distance));
+            return true;
+        });
+
         if (flir != null) {
             findPreference(getString(R.string.flirsettings_category_device_key)).setVisible(true);
-
-            SeekBarPreference msxDistance = findPreference(getString(R.string.flirsettings_msxdistance_key));
-            float initial = Converter.msxDistance(requireContext(), msxDistance.getValue());
-            msxDistance.setSummary(getString(R.string.flirsettings_msxdistance_summary, initial));
-            msxDistance.setOnPreferenceChangeListener((Preference preference, Object value) -> {
-                float distance = Converter.msxDistance(requireContext(), (Integer) value);
-                preference.setSummary(getString(R.string.flirsettings_msxdistance_summary, distance));
-                return true;
-            });
 
             findPreference(getString(R.string.flirsettings_automatictuning_key))
                     .setOnPreferenceChangeListener((Preference preference, Object enabled) -> {

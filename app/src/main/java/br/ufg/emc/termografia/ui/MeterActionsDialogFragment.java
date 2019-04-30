@@ -6,13 +6,13 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -69,7 +69,12 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
         } else {
             TextView remove = view.findViewById(R.id.textview_meteractions_remove);
 
-            name.setText(requireContext().getString(R.string.meter_actions_name, "1"));
+            int index = imageViewModel.getMeterList().getValue().indexOf(selected);
+            name.setText(requireContext().getString(R.string.meter_actions_name, index));
+
+            concept.setOnClickListener(v ->
+                Toast.makeText(requireContext(), R.string.meter_actions_concept_description, Toast.LENGTH_SHORT).show());
+
             remove.setOnClickListener(v -> {
                 imageViewModel.removeMeter(selected);
                 dismiss();
