@@ -18,6 +18,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import br.ufg.emc.termografia.Meter;
 import br.ufg.emc.termografia.R;
+import br.ufg.emc.termografia.diagnosis.BushingDiagnoser;
+import br.ufg.emc.termografia.diagnosis.Concept;
+import br.ufg.emc.termografia.viewmodel.DiagnosisViewModel;
 import br.ufg.emc.termografia.viewmodel.ThermalImageViewModel;
 
 public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
@@ -25,6 +28,7 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
 
     private Meter selected;
     private ThermalImageViewModel imageViewModel;
+    private DiagnosisViewModel diagnosisViewModel;
 
     public MeterActionsDialogFragment() { /* Required empty public constructor */ }
 
@@ -36,6 +40,8 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         imageViewModel = ViewModelProviders.of(requireActivity()).get(ThermalImageViewModel.class);
+        diagnosisViewModel = ViewModelProviders.of(requireActivity()).get(DiagnosisViewModel.class);
+
         selected = imageViewModel.getSelectedMeter().getValue();
         if (selected == null) dismiss();
     }
@@ -52,7 +58,7 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
 
         TextView name = view.findViewById(R.id.textview_meteractions_name);
         TextView temperature = view.findViewById(R.id.textview_meteractions_temperature);
-        TextView concept = view.findViewById(R.id.textview_meteractions_concept);
+        TextView conceptView = view.findViewById(R.id.textview_meteractions_concept);
 
         temperature.setText(requireContext().getString(
                 R.string.meter_actions_temperature,
@@ -64,24 +70,25 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
             ViewGroup actions = view.findViewById(R.id.viewgroup_meteractions_actions);
 
             name.setText(requireContext().getString(R.string.meter_actions_name_ambient));
-            concept.setVisibility(View.GONE);
+            conceptView.setVisibility(View.GONE);
             actions.setVisibility(View.GONE);
         } else {
-            TextView remove = view.findViewById(R.id.textview_meteractions_remove);
-
             int index = imageViewModel.getMeterList().getValue().indexOf(selected);
             name.setText(requireContext().getString(R.string.meter_actions_name, index));
 
-            concept.setOnClickListener(v ->
+            diagnosisViewModel.getDiagnoser().observe(this, (BushingDiagnoser diagnoser) -> {
+                Concept concept = diagnoser.getIndividualConcept(selected);
+                conceptView.setText(concept.toString());
+            });
+            conceptView.setOnClickListener(v ->
                 Toast.makeText(requireContext(), R.string.meter_actions_concept_description, Toast.LENGTH_SHORT).show());
 
+            TextView remove = view.findViewById(R.id.textview_meteractions_remove);
             remove.setOnClickListener(v -> {
                 imageViewModel.removeMeter(selected);
                 dismiss();
             });
         }
-
-        // TODO: Atualizar o valor do Conceito
     }
 
     @Override

@@ -142,5 +142,5 @@
 
     <string name="diagnosissettings_loading_key">loading</string>
     <string name="diagnosissettings_loading_title">Carregamento (pu)</string>
-    <string name="diagnosissettings_loading_default">1.000</string>
+    <string name="diagnosissettings_loading_default">1.00</string>
 </resources>

@@ -25,7 +25,8 @@ public class DiagnosisSettingsFragment extends PreferenceFragmentCompat {
         EditTextPreference preference = findPreference(getString(R.string.diagnosissettings_loading_key));
         preference.setOnBindEditTextListener((EditText editText) -> {
             editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            editText.addTextChangedListener(new NumberTextWatcher(3));
+            // TODO: Verificar se duas casas decimais é suficiente
+            editText.addTextChangedListener(new NumberTextWatcher(2));
             editText.setSelection(editText.getText().length());
         });
     }

@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import br.ufg.emc.termografia.R;
+import br.ufg.emc.termografia.diagnosis.BushingDiagnoser;
 import br.ufg.emc.termografia.util.Preferences;
 
 public class DiagnosisViewModel extends AndroidViewModel implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -17,6 +18,7 @@ public class DiagnosisViewModel extends AndroidViewModel implements SharedPrefer
 
     private MutableLiveData<String> material = new MutableLiveData<>();
     private MutableLiveData<String> loading = new MutableLiveData<>();
+    private MutableLiveData<BushingDiagnoser> diagnoser = new MutableLiveData<>();
 
     public DiagnosisViewModel(@NonNull Application application) {
         super(application);
@@ -32,6 +34,8 @@ public class DiagnosisViewModel extends AndroidViewModel implements SharedPrefer
         key = app.getString(R.string.diagnosissettings_loading_key);
         defaultString = app.getString(R.string.diagnosissettings_loading_default);
         this.loading.setValue(preferences.getString(key, defaultString));
+
+        updateDiagnoser();
 
         preferences.registerOnSharedPreferenceChangeListener(this);
     }
@@ -52,10 +56,17 @@ public class DiagnosisViewModel extends AndroidViewModel implements SharedPrefer
 
     private void setMaterial(String material) {
         this.material.setValue(material);
+        updateDiagnoser();
     }
 
     private void setLoading(String loading) {
         this.loading.setValue(loading);
+        updateDiagnoser();
+    }
+
+    private void updateDiagnoser() {
+        double loadingVal = Double.parseDouble(loading.getValue());
+        this.diagnoser.setValue(new BushingDiagnoser(loadingVal, material.getValue()));
     }
 
     public LiveData<String> getMaterial() {
@@ -64,5 +75,9 @@ public class DiagnosisViewModel extends AndroidViewModel implements SharedPrefer
 
     public LiveData<String> getLoading() {
         return loading;
+    }
+
+    public LiveData<BushingDiagnoser> getDiagnoser() {
+        return diagnoser;
     }
 }
