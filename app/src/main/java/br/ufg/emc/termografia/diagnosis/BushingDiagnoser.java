@@ -86,10 +86,14 @@ public class BushingDiagnoser {
         return BushingDiagnoser.calculateScore(gradient, conceptLimits, scoreLimits);
     }
 
-    public double getScore(List<Meter> meters) {
+    public double getScore(List<Meter> meterList) {
         double n, p, num = 0, den = 0;
+        Meter meter;
 
-        for (Meter meter : meters) {
+        for (int i = 0; i < meterList.size(); i++) {
+            meter = meterList.get(i);
+            if (meter.isAmbient()) continue;
+
             n = getIndividualScore(meter);
             p = calculateWeightedScore(n);
 

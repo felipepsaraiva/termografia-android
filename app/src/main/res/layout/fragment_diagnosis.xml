@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".ui.DiagnosisDialogFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_diagnosis"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:background="@color/colorPrimary"
         app:title="@string/diagnosis_title"
         app:titleTextColor="@color/dark_bg_light_primary_text" />
@@ -18,7 +18,30 @@
     <FrameLayout
         android:id="@+id/viewgroup_diagnosis_fragmentcontainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar_diagnosis" />
+        android:layout_height="wrap_content" />
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/textview_diagnosis_insufficient"
+        style="?textAppearanceSubtitle1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_all_default_double"
+        android:layout_marginTop="@dimen/margin_all_default"
+        android:layout_marginEnd="@dimen/margin_all_default_double"
+        android:layout_marginBottom="@dimen/margin_all_default_double"
+        android:gravity="center_horizontal"
+        android:text="@string/diagnosis_insufficient_meters"
+        android:textColor="@color/gray_400" />
+
+    <TextView
+        android:id="@+id/textview_diagnosis_concept"
+        style="?textAppearanceHeadline1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_all_default"
+        android:layout_marginEnd="@dimen/margin_all_default"
+        android:layout_marginBottom="@dimen/margin_all_default"
+        android:gravity="center_horizontal"
+        android:visibility="gone" />
+
+</LinearLayout>

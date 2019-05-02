@@ -15,13 +15,12 @@
 
         <TextView
             android:id="@+id/textview_meteractions_concept"
-            style="?textAppearanceHeadline5"
+            style="?textAppearanceHeadline4"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="@dimen/margin_all_default"
             android:layout_marginEnd="@dimen/margin_all_default"
             android:gravity="center_vertical"
-            android:text="A"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

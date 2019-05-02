@@ -1,6 +1,5 @@
 package br.ufg.emc.termografia.ui;
 
-
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -79,6 +78,7 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
             diagnosisViewModel.getDiagnoser().observe(this, (BushingDiagnoser diagnoser) -> {
                 Concept concept = diagnoser.getIndividualConcept(selected);
                 conceptView.setText(concept.toString());
+                conceptView.setTextColor(concept.getColor(requireContext()));
             });
             conceptView.setOnClickListener(v ->
                 Toast.makeText(requireContext(), R.string.meter_actions_concept_description, Toast.LENGTH_SHORT).show());

@@ -143,4 +143,7 @@
     <string name="diagnosissettings_loading_key">loading</string>
     <string name="diagnosissettings_loading_title">Carregamento (pu)</string>
     <string name="diagnosissettings_loading_default">1.00</string>
+
+    <string name="diagnosissettings_category_concept_key">equipment_concept_category</string>
+    <string name="diagnosissettings_category_concept_title">Nota do equipamento</string>
 </resources>

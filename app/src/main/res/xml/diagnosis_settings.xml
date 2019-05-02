@@ -21,4 +21,8 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:key="@string/diagnosissettings_category_concept_key"
+        app:title="@string/diagnosissettings_category_concept_title" />
+
 </androidx.preference.PreferenceScreen>

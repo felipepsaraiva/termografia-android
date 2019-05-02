@@ -35,4 +35,5 @@
 
     <!--DiagnosisDialogFragment-->
     <string name="diagnosis_title">Diagnóstico</string>
+    <string name="diagnosis_insufficient_meters">Adicione mais medidores para calcular a nota do equipamento</string>
 </resources>
