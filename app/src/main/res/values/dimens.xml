@@ -16,4 +16,5 @@
     <dimen name="size_thermometer_meter_outer">30dp</dimen>
     <dimen name="size_thermometer_meter_inner">6dp</dimen>
     <dimen name="textsize_thermometer_paint">10sp</dimen>
+    <dimen name="margin_thermometer_text">3dp</dimen>
 </resources>

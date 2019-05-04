@@ -43,7 +43,7 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
 
     private Paint paint;
     private Rect bounds;
-    private int meterOuterSize, meterInnerSize, meterBoundSize;
+    private int meterOuterSize, meterInnerSize, meterBoundSize, textMargin;
     private int defaultColor, ambientColor;
 
     public ThermometerSurfaceView(Context context) {
@@ -82,6 +82,7 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         meterBoundSize = res.getDimensionPixelSize(R.dimen.size_thermometer_meter_bound);
         meterOuterSize = res.getDimensionPixelSize(R.dimen.size_thermometer_meter_outer);
         meterInnerSize = res.getDimensionPixelSize(R.dimen.size_thermometer_meter_inner);
+        textMargin = res.getDimensionPixelSize(R.dimen.margin_thermometer_text);
         defaultColor = ResourcesCompat.getColor(res, R.color.meter_default, null);
         ambientColor = ResourcesCompat.getColor(res, R.color.meter_ambient, null);
 
@@ -153,6 +154,7 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
 
         int color = defaultColor;
         if (isAmbient) color = ambientColor;
+        paint.setColor(color);
 
         final Drawable outer = ContextCompat.getDrawable(getContext(), R.drawable.ic_all_meter).mutate();
         outer.setBounds(getBoundsFor(centerX, centerY, meterOuterSize));
@@ -164,12 +166,13 @@ public class ThermometerSurfaceView extends SurfaceView implements Runnable, Lif
         inner.setTint(color);
         inner.draw(canvas);
 
-        // TODO: Escrever texto acima do medidor caso ele esteja fora da superficie
         final double temp = (isAmbient ? meter.getTemperature() : meter.getDifference());
         String text = activity.getString(R.string.thermometer_temperature, temp);
         if (!isAmbient && temp >= 0) text = "+" + text;
-        paint.setColor(color);
-        canvas.drawText(text, centerX, centerY + (meterOuterSize/2f) + paint.getTextSize(), paint);
+
+        float textY = (meterOuterSize/2f) + textMargin + paint.getTextSize();
+        if (centerY + textY >= canvas.getHeight()) textY = - (textY - paint.getTextSize());
+        canvas.drawText(text, centerX, centerY + textY, paint);
     }
 
     private Rect getBoundsFor(Rect rect, int centerX, int centerY, int size) {
