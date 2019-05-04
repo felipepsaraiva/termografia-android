@@ -26,7 +26,8 @@
     <!--MeterActionsDialogFragment-->
     <string name="meter_actions_name">Medidor %1$d</string>
     <string name="meter_actions_name_ambient">Ambiente</string>
-    <string name="meter_actions_temperature">%1$.1f°C &#177; %2$.1f%%</string>
+    <string name="meter_actions_temperature">Absoluta: %1$.1f°C &#177; %2$.1f%%</string>
+    <string name="meter_actions_temperature_relative">Relativa: %1$+.1f°C</string>
     <string name="meter_actions_remove">Remover</string>
     <string name="meter_actions_concept_description">Nota conceito do medidor</string>
 
@@ -35,5 +36,7 @@
 
     <!--DiagnosisDialogFragment-->
     <string name="diagnosis_title">Diagnóstico</string>
-    <string name="diagnosis_insufficient_meters">Adicione mais medidores para calcular a nota do equipamento</string>
+    <string name="diagnosis_loading">Calculando nota para o material e carregamento especificados...</string>
+    <string name="diagnosis_insufficient_meters">Adicione mais medidores para calcular a nota do equipamento.</string>
+    <string name="diagnosis_error">Não foi possível realizar o diagnóstico!</string>
 </resources>

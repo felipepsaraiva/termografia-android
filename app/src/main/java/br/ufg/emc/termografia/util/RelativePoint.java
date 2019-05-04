@@ -1,7 +1,5 @@
 package br.ufg.emc.termografia.util;
 
-// TODO: Avaliar se o caso de x == width e y == height deve ser permitido
-
 public class RelativePoint {
     private double relativeX, relativeY;
 

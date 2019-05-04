@@ -19,7 +19,6 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="@dimen/margin_all_default"
-            android:layout_marginEnd="@dimen/margin_all_default"
             android:gravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -30,7 +29,6 @@
             style="?textAppearanceHeadline6"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_all_default"
             app:layout_constraintEnd_toStartOf="@+id/textview_meteractions_concept"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -39,10 +37,17 @@
             android:id="@+id/textview_meteractions_temperature"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_all_default"
             app:layout_constraintEnd_toStartOf="@+id/textview_meteractions_concept"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textview_meteractions_name" />
+
+        <TextView
+            android:id="@+id/textview_meteractions_temperature_relative"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@+id/textview_meteractions_concept"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_meteractions_temperature" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

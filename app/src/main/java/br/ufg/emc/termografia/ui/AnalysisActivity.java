@@ -56,8 +56,10 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
         surfaceView = findViewById(R.id.thermometersurfaceview_analysis);
 
         bottomNavigationView = findViewById(R.id.bottomnavigationview_analysis_actions);
-        bottomNavigationView.setSelectedItemId(R.id.menu_analysis_diagnosis);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
+        Menu bottomMenu = bottomNavigationView.getMenu();
+        for (int i = 0; i < bottomMenu.size(); i++)
+            bottomMenu.getItem(i).setCheckable(false);
 
         frameViewModel = ViewModelProviders.of(this).get(ThermalFrameViewModel.class);
         imageViewModel = ViewModelProviders.of(this).get(ThermalImageViewModel.class);
@@ -186,6 +188,12 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
 
     @Override
     public void onFrameProcessed(RenderedImage renderedImage) {
+        Log.d(LOG_TAG, "[Processed frame]");
+        Log.d(LOG_TAG, "Image type: " + processor.getImageTypes().toString());
+        Log.d(LOG_TAG, "Palette: " + processor.getImagePalette().toString());
+        Log.d(LOG_TAG, "Msx Distance: " + processor.getMSXDistance());
+        Log.d(LOG_TAG, "Emissivity: " + processor.getEmissivity());
+
         if (renderedImage.imageType() == RenderedImage.ImageType.ThermalRadiometricKelvinImage) {
             int[] temperatures = renderedImage.thermalPixelValues();
             int width = renderedImage.width();

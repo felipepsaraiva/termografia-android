@@ -17,6 +17,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -70,9 +71,10 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         bottomNavigationView = findViewById(R.id.bottomnavigationview_preview_actions);
-        // TODO: Item selecionado não fica com aparencia de desabilitado
-        bottomNavigationView.setSelectedItemId(R.id.menu_preview_capture);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
+        Menu bottomMenu = bottomNavigationView.getMenu();
+        for (int i = 0; i < bottomMenu.size(); i++)
+            bottomMenu.getItem(i).setCheckable(false);
 
         flir = new FlirProxy(this);
         frameViewModel = ViewModelProviders.of(this).get(ThermalFrameViewModel.class);

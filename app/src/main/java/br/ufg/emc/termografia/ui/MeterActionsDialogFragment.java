@@ -57,6 +57,7 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
 
         TextView name = view.findViewById(R.id.textview_meteractions_name);
         TextView temperature = view.findViewById(R.id.textview_meteractions_temperature);
+        TextView relativeTemperature = view.findViewById(R.id.textview_meteractions_temperature_relative);
         TextView conceptView = view.findViewById(R.id.textview_meteractions_concept);
 
         temperature.setText(requireContext().getString(
@@ -69,11 +70,14 @@ public class MeterActionsDialogFragment extends BottomSheetDialogFragment {
             ViewGroup actions = view.findViewById(R.id.viewgroup_meteractions_actions);
 
             name.setText(requireContext().getString(R.string.meter_actions_name_ambient));
+            relativeTemperature.setVisibility(View.GONE);
             conceptView.setVisibility(View.GONE);
             actions.setVisibility(View.GONE);
         } else {
             int index = imageViewModel.getMeterList().getValue().indexOf(selected);
             name.setText(requireContext().getString(R.string.meter_actions_name, index));
+            relativeTemperature.setText(
+                    requireContext().getString(R.string.meter_actions_temperature_relative, selected.getDifference()));
 
             diagnosisViewModel.getDiagnoser().observe(this, (BushingDiagnoser diagnoser) -> {
                 Concept concept = diagnoser.getIndividualConcept(selected);

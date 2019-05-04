@@ -2,6 +2,7 @@ package br.ufg.emc.termografia.ui;
 
 import android.os.Bundle;
 
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,12 @@ public class DiagnosisDialogFragment extends BottomSheetDialogFragment {
     private ThermalImageViewModel imageViewModel;
     private DiagnosisViewModel diagnosisViewModel;
 
+    private TextView conceptView;
+    private ViewGroup loadingView;
+    private TextView statusView;
+
+    private LoadingCountDown countDown = null;
+
     public DiagnosisDialogFragment() { /* Required empty public constructor */ }
 
     public static DiagnosisDialogFragment newInstance() {
@@ -40,6 +47,7 @@ public class DiagnosisDialogFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         imageViewModel = ViewModelProviders.of(requireActivity()).get(ThermalImageViewModel.class);
         diagnosisViewModel = ViewModelProviders.of(requireActivity()).get(DiagnosisViewModel.class);
+        diagnosisViewModel.getDiagnoser().observe(this, d -> diagnose());
     }
 
     @Override
@@ -55,25 +63,80 @@ public class DiagnosisDialogFragment extends BottomSheetDialogFragment {
         toolbar.setNavigationIcon(R.drawable.ic_all_dismiss);
         toolbar.setNavigationOnClickListener((View v) -> dismiss());
 
-        TextView conceptView = view.findViewById(R.id.textview_diagnosis_concept);
-        TextView insufficientView = view.findViewById(R.id.textview_diagnosis_insufficient);
-
-        diagnosisViewModel.getDiagnoser().observe(this, (BushingDiagnoser diagnoser) -> {
-            List<Meter> meterList = imageViewModel.getMeterList().getValue();
-            if (meterList.size() < 2) {
-                conceptView.setVisibility(View.GONE);
-                insufficientView.setVisibility(View.VISIBLE);
-            } else {
-                Concept concept = diagnoser.getConcept(imageViewModel.getMeterList().getValue());
-                conceptView.setVisibility(View.VISIBLE);
-                conceptView.setText(concept.toString());
-                conceptView.setTextColor(concept.getColor(requireContext()));
-                insufficientView.setVisibility(View.GONE);
-            }
-        });
+        conceptView = view.findViewById(R.id.textview_diagnosis_concept);
+        loadingView = view.findViewById(R.id.viewgroup_diagnosis_loading);
+        statusView = view.findViewById(R.id.textview_diagnosis_status);
 
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.viewgroup_diagnosis_fragmentcontainer, DiagnosisSettingsFragment.newInstance())
                 .commit();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        conceptView = null;
+        loadingView = null;
+        statusView = null;
+
+        if (countDown != null) {
+            countDown.cancel();
+            countDown = null;
+        }
+    }
+
+    private void diagnose() {
+        if (countDown != null) return;
+
+        conceptView.setVisibility(View.GONE);
+
+        List<Meter> meterList = imageViewModel.getMeterList().getValue();
+        if (meterList == null || meterList.size() < 2) {
+            statusView.setText(meterList == null ? R.string.diagnosis_error : R.string.diagnosis_insufficient_meters);
+            loadingView.setVisibility(View.GONE);
+            statusView.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        statusView.setVisibility(View.GONE);
+        loadingView.setVisibility(View.VISIBLE);
+
+        countDown = new LoadingCountDown(2000);
+        countDown.start();
+    }
+
+    private class LoadingCountDown extends CountDownTimer {
+        public LoadingCountDown(long ms) {
+            super(ms, ms);
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {}
+
+        @Override
+        public void onFinish() {
+            if (conceptView == null || loadingView == null || statusView == null) return;
+
+            List<Meter> meterList = imageViewModel.getMeterList().getValue();
+            BushingDiagnoser diagnoser = diagnosisViewModel.getDiagnoser().getValue();
+
+            loadingView.setVisibility(View.GONE);
+
+            if (meterList == null || diagnoser == null) {
+                statusView.setText(R.string.diagnosis_error);
+                conceptView.setVisibility(View.GONE);
+                statusView.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            Concept concept = diagnoser.getConcept(imageViewModel.getMeterList().getValue());
+            conceptView.setText(concept.toString());
+            conceptView.setTextColor(concept.getColor(requireContext()));
+
+            statusView.setVisibility(View.GONE);
+            conceptView.setVisibility(View.VISIBLE);
+
+            countDown = null;
+        }
     }
 }
