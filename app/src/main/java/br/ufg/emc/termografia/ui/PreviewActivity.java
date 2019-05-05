@@ -12,6 +12,7 @@ import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 
 import android.Manifest;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -177,6 +178,13 @@ public class PreviewActivity extends AppCompatActivity implements BottomNavigati
             try {
                 File frameFile = ExternalStorageUtils.createNewFrameFile(this);
                 frame.save(frameFile, processor);
+
+                MediaScannerConnection.scanFile(
+                        this,
+                        new String[] { frameFile.getAbsolutePath() },
+                        new String[] { "image/jpeg" },
+                        null
+                );
 
                 runOnUiThread(() -> {
                     frameViewModel.setFramePath(frameFile.getAbsolutePath());

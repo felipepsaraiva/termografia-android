@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- TODO: Adicionar ação de selecionar outra imagem -->
+    <item
+        android:id="@+id/menu_analysis_replace_frame"
+        android:icon="@drawable/ic_analysis_replace_frame"
+        android:title="@string/analysis_replace_frame"
+        android:tooltipText="@string/analysis_replace_frame" />
 
     <item
         android:id="@+id/menu_analysis_new_meter"

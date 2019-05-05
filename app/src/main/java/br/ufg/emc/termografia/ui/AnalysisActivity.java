@@ -1,6 +1,7 @@
 package br.ufg.emc.termografia.ui;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -14,6 +15,7 @@ import br.ufg.emc.termografia.viewmodel.ThermalFrameViewModel;
 import br.ufg.emc.termografia.viewmodel.ThermalImageViewModel;
 
 import android.Manifest;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,15 +33,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Objects;
 
 public class AnalysisActivity extends AppCompatActivity implements FrameProcessor.Delegate, BottomNavigationView.OnNavigationItemSelectedListener {
     private static final String LOG_TAG = AnalysisActivity.class.getSimpleName();
+    private static final int CHOOSE_FRAME_REQUEST_CODE = 1;
 
     private ThermalFrameViewModel frameViewModel;
     private ThermalImageViewModel imageViewModel;
     private FrameProcessor processor;
+    private Uri frameUri;
     private LoadedFrame frame;
     private boolean visible = false;
 
@@ -52,6 +58,7 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
         setContentView(R.layout.activity_analysis);
 
         processor = new FrameProcessor(this, this, EnumSet.of(RenderedImage.ImageType.ThermalRadiometricKelvinImage));
+        frameUri = getIntent().getData();
 
         surfaceView = findViewById(R.id.thermometersurfaceview_analysis);
 
@@ -155,18 +162,18 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
         File frameFile = null;
 
         try {
-            Uri uri = getIntent().getData();
-            if (uri != null) {
+            if (frameUri != null) {
                 // TODO: Encontrar alternativa para abrir o frame a partir do Uri
-                if ("file".equalsIgnoreCase(uri.getScheme()))
-                    frameFile = (uri.getPath() != null ? new File(uri.getPath()) : null);
+                if ("file".equalsIgnoreCase(frameUri.getScheme()))
+                    frameFile = (frameUri.getPath() != null ? new File(frameUri.getPath()) : null);
                 else
-                    frameFile = FileUtils.getFile(this, getIntent().getData());
+                    frameFile = FileUtils.getFile(this, frameUri);
             } else {
                 File dir = ExternalStorageUtils.getAppDirectory(this);
                 File[] files = dir.listFiles();
                 if (files.length > 0)
-                    frameFile = files[files.length - 1];
+                    frameFile = Collections.max(Arrays.asList(files),
+                            (File a, File b) -> a.getName().compareTo(b.getName()));
             }
 
 
@@ -207,6 +214,10 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
+            case R.id.menu_analysis_replace_frame:
+                startFrameChooser();
+                break;
+
             case R.id.menu_analysis_devicesettings:
                 FlirDeviceDialogFragment.newInstance(null)
                         .show(getSupportFragmentManager(), FlirDeviceDialogFragment.FRAGMENT_TAG);
@@ -226,6 +237,29 @@ public class AnalysisActivity extends AppCompatActivity implements FrameProcesso
         }
 
         return false;
+    }
+
+    private void startFrameChooser() {
+        RuntimePermission.askPermission(this)
+                .request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .onAccepted((PermissionResult result) -> {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("image/jpeg");
+                    startActivityForResult(intent, CHOOSE_FRAME_REQUEST_CODE);
+                }).ask();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode != CHOOSE_FRAME_REQUEST_CODE) return;
+        if (resultCode != RESULT_OK) return;
+        if (data == null || data.getData() == null) return;
+
+        frameUri = data.getData();
+        loadFrame();
     }
 
     private void finishWithToast(int id) {
